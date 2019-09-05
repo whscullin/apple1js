@@ -151,9 +151,9 @@ var tapes = {};
 
   <div class="modal" id="input-modal" aria-hidden="true">
     <div class="modal__overlay" tabindex="-1" data-micromodal-close>
-      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="Options">
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="Input Text">
         <header class="modal__header">
-          <span class="modal__title" id="options-modal-title">
+          <span class="modal__title" id="input-modal-title">
             Input Text
           </span>
           <button class="modal__close" aria-label="Close modal" data-micromodal-close>
@@ -179,10 +179,27 @@ var tapes = {};
     </div>
   </div>
 
-    <div id="local" title="Load Local File" style="display: none">
-    <form action="#">
-      <input type="file" id="local_file" />
-    </form>
+  <div class="modal" id="local-modal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="Load Local File">
+        <header class="modal__header">
+          <span class="modal__title" id="local-modal-title">
+              Load Local File
+          </span>
+          <button class="modal__close" aria-label="Close modal" data-micromodal-close>
+          </button>
+        </header>
+        <main class="modal__content" id="input-modal-content">
+          <form action="#">
+            <input type="file" id="local_file" />
+          </form>
+        </main>
+        <footer class="modal__footer">
+            <button class="modal__btn" aria-label="Load local file" onclick="Apple1.doLoadLocal()">OK</button>
+            <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+        </footer>
+      </div>
+    </div>
   </div>
   <script type="text/javascript" src="dist/apple1.js"></script>
 </body>

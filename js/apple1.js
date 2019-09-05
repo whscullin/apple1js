@@ -99,15 +99,11 @@ export function doLoadLocal() {
                     }
                 }
                 aci.buffer = buf;
-                MicroModal.close('local');
+                MicroModal.close('local-modal');
             });
         };
         fileReader.readAsArrayBuffer(file);
     }
-}
-
-export function openLoadLocal() {
-    MicroModal.open('local');
 }
 
 function updateKHz() {
@@ -317,7 +313,7 @@ export function openOptions() {
 
 export function openLoadText(event) {
     if (event && event.altKey) {
-        MicroModal.show('local');
+        MicroModal.show('local-modal');
     } else {
         MicroModal.show('input-modal');
     }
