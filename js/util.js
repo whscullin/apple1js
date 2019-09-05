@@ -75,5 +75,5 @@ export function hup() {
     if ( !results )
         return '';
     else
-        return results[1];
+        return decodeURIComponent(results[1]);
 }

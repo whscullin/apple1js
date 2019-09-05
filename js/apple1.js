@@ -1,3 +1,5 @@
+import MicroModal from 'micromodal';
+
 import Apple1IO from './apple1io';
 import CPU6502 from './cpu6502';
 import Prefs from './prefs';
@@ -38,9 +40,7 @@ text = new TextPage();
 text.init();
 
 aci = new ACI(cpu, { progress: function(val) {
-    //$("#takeup").css("width", val * 75);
-    //$("#supply").css("width", 75 - val * 75);
-    $('#tape').css('width', val * 100);
+    document.querySelector('#tape').style.width =  val * 100 + 'px';
 }});
 io = new Apple1IO(text);
 
@@ -52,7 +52,7 @@ if (krusader) {
     ramh = new Basic();
     rom = new Bios();
 }
-keyboard = new KeyBoard(cpu, io, text);
+keyboard = new KeyBoard('#keyboard', cpu, io, text);
 
 cpu.addPageHandler(raml);
 if (ramh) {
@@ -78,8 +78,8 @@ if (typeof window.webkitAudioContext != 'undefined') {
     context = new window.webkitAudioContext();
 }
 
-function doLoadLocal() {
-    var files = $('#local_file').prop('files');
+export function doLoadLocal() {
+    var files = document.querySelector('#local_file').files;
     if (files.length == 1) {
         var file = files[0];
         var fileReader = new FileReader();
@@ -99,7 +99,7 @@ function doLoadLocal() {
                     }
                 }
                 aci.buffer = buf;
-                $('#local').dialog('close');
+                MicroModal.close('local');
             });
         };
         fileReader.readAsArrayBuffer(file);
@@ -107,7 +107,7 @@ function doLoadLocal() {
 }
 
 export function openLoadLocal() {
-    $('#local').dialog('open');
+    MicroModal.open('local');
 }
 
 function updateKHz() {
@@ -119,11 +119,11 @@ function updateKHz() {
     if (showFPS) {
         delta = renderedFrames - lastFrames;
         var fps = parseInt(delta/(ms/1000));
-        $('#khz').text( fps + 'fps');
+        document.querySelector('#khz').innerHTML = fps + 'fps';
     } else {
         delta = cycles - lastCycles;
         var khz = parseInt(delta/ms);
-        $('#khz').text( khz + 'KHz');
+        document.querySelector('#khz').innerHTML = khz + 'KHz';
     }
 
     startTime = now;
@@ -141,10 +141,14 @@ export function toggleFPS() {
 
 export function toggleSpeed()
 {
-    throttling = $('#speed_toggle').prop('checked');
+    throttling = document.querySelector('#speed_toggle').checked;
     if (runTimer) {
         run();
     }
+}
+
+export function setKeyBuffer(text) {
+    io.setKeyBuffer(text);
 }
 
 export function setTurboTape(val) {
@@ -247,9 +251,9 @@ function _keydown(evt) {
             var elem = document.getElementById('display');
             elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
         }
-    } else if (evt.keyCode == $.ui.keyCode.SHIFT) {
+    } else if (evt.key === 'Shift') {
         keyboard.shiftKey(true);
-    } else if (evt.keyCode == $.ui.keyCode.CONTROL) {
+    } else if (evt.key == 'Control') {
         keyboard.controlKey(true);
     } else if (!focused && (!evt.metaKey || evt.ctrlKey)) {
         evt.preventDefault();
@@ -266,9 +270,9 @@ function _keydown(evt) {
 function _keyup(evt) {
     _key = 0xff;
 
-    if (evt.keyCode == $.ui.keyCode.SHIFT) {
+    if (evt.key === 'Shift') {
         keyboard.shiftKey(false);
-    } else if (evt.keyCode == $.ui.keyCode.CONTROL) {
+    } else if (evt.key === 'Control') {
         keyboard.controlKey(false);
     } else {
         if (!focused) {
@@ -280,8 +284,8 @@ function _keyup(evt) {
 var _updateScreenTimer = null;
 
 export function updateScreen() {
-    var green = $('#green_screen').prop('checked');
-    var scanlines = $('#show_scanlines').prop('checked');
+    var green = document.querySelector('#green_screen').checked;
+    var scanlines = document.querySelector('#show_scanlines').checked;
 
     text.green(green);
     text.scanlines(scanlines);
@@ -307,20 +311,23 @@ export function pauseRun(b) {
     paused = !paused;
 }
 
+export function openOptions() {
+    MicroModal.show('options-modal');
+}
+
 export function openLoadText(event) {
-    if (event.altKey) {
-        $('#local').dialog('open');
+    if (event && event.altKey) {
+        MicroModal.show('local');
     } else {
-        $('#input_text').dialog('open');
-        $('#text_input').focus();
+        MicroModal.show('input-modal');
     }
 }
 
-function doLoadText() {
-    var text = $('#text_input').val();
+export function doLoadText() {
+    var text = document.querySelector('#text_input').value;
     if (!text.indexOf('//Binary')) {
         var lines = text.split('\n');
-        $.each(lines, function(_, line) {
+        lines.forEach(function(line) {
             var parts = line.split(': ');
             if (parts.length == 2) {
                 var addr;
@@ -337,13 +344,13 @@ function doLoadText() {
     } else {
         io.paste(text);
     }
-    $('#input_text').dialog('close');
+    MicroModal.close('input-modal');
 }
 
-$(function() {
-    hashtag = document.location.hash;
+MicroModal.init();
 
-    $('button,input[type=button],a.button').button();
+document.addEventListener('DOMContentLoaded', function() {
+    hashtag = document.location.hash;
 
     /*
      * Input Handling
@@ -354,45 +361,52 @@ $(function() {
 
     text.setContext(context);
 
-    $(window).keydown(_keydown);
-    $(window).keyup(_keyup);
+    window.addEventListener('keydown', _keydown);
+    window.addEventListener('keyup', _keyup);
 
-    $('.overscan').bind('paste', function(event) {
+    document.querySelector('.overscan').addEventListener('paste', function(event) {
         io.paste(event.originalEvent.clipboardData().getData('text/plain'));
         event.preventDefault();
     });
 
-    $('input,textarea').focus(function() { focused = true; });
-    $('input,textarea').blur(function() { focused = false; });
-
-    keyboard.create($('#keyboard'));
+    document.querySelectorAll('input,textarea').forEach(function(el) {
+        el.addEventListener('focus', function() { focused = true; });
+    });
+    document.querySelectorAll('input,textarea').forEach(function(el) {
+        el.addEventListener('blur', function() { focused = false; });
+    });
+    keyboard.create();
 
     if (prefs.havePrefs()) {
-        $('input[type=checkbox]').each(function() {
-            var val = prefs.readPref(this.id);
+        document.querySelectorAll('input[type=checkbox]').forEach(function(el) {
+            var val = prefs.readPref(el.id);
             if (val != null)
-                this.checked = JSON.parse(val);
+                el.checked = JSON.parse(val);
         });
-        $('input[type=checkbox]').change(function() {
-            prefs.writePref(this.id, JSON.stringify(this.checked));
+        document.querySelectorAll('input[type=checkbox]').forEach(function(el) {
+            prefs.writePref(el.id, JSON.stringify(el.checked));
         });
     }
 
-    turbotape = $('#turbo_tape').prop('checked');
+    turbotape = document.querySelector('#turbo_tape').checked;
 
-    $.each(window.tapes, function(key) {
-        $('#tape_select').append(
-            '<option name=\'' + key + '\'>' +
-                                 key +
-                                 '</option>');});
+    Object.keys(window.tapes).sort().forEach(function(key) {
+        var option = document.createElement('option');
+        option.value = key;
+        option.text = key;
+        document.querySelector('#tape_select').append(option);
+    });
 
-    $('#tape_select').change(function(event) {
-        var tape = window.tapes[event.target.value];
+    function doTapeSelect() {
+        var tapeId = document.querySelector('#tape_select').value;
+        var tape = window.tapes[tapeId];
         if (!tape) {
-            $('#text_input').val('');
+            document.querySelector('#text_input').value = '';
             return;
         }
-        window.location.hash = event.target.value;
+        debug('Loading', tapeId);
+
+        window.location.hash = tapeId;
         reset();
         if (turbotape) {
             var trackIdx = 0, script = '';
@@ -418,45 +432,24 @@ $(function() {
                     script += parts[idx] + '\n';
                 }
             }
-            $('#text_input').val(script);
-            $('#tape').css('width', 100);
+            document.querySelector('#text_input').value = script;
+            document.querySelector('#tape').css('width', 100);
         } else {
             aci.setData(tape.tracks);
-            $('#text_input').val(tape.script);
+            document.querySelector('#text_input').value = tape.script;
+            doLoadText();
         }
-    });
+    }
+    document.querySelector('#tape_select').addEventListener('change', doTapeSelect);
 
-    // reset();
     run();
     setInterval(updateKHz, 1000);
     updateScreen();
 
-    var cancel = function() { $(this).dialog('close'); };
-    $('#options').dialog({ autoOpen: false,
-        modal: true,
-        width: 320,
-        height: 400,
-        buttons: {'Close': cancel }});
-    $('#input_text').dialog({ autoOpen: false,
-        modal: true,
-        width: 530,
-        buttons: [
-            {
-                text: 'Cancel',
-                click: cancel
-            },
-            {
-                text: 'OK',
-                click: doLoadText
-            }]});
-    $('#local').dialog({ autoOpen: false,
-        modal: true,
-        width: 530,
-        buttons: {'Cancel': cancel, 'OK': doLoadLocal }});
-
     var tape = hup();
     if (tape) {
-        $('#tape_select').val(tape).change();
-        doLoadText();
+        openLoadText();
+        document.querySelector('#tape_select').value = tape;
+        doTapeSelect();
     }
 });

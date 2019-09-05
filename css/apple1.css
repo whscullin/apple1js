@@ -37,7 +37,8 @@ input[type="text"] {
 
 body {
     margin: 16px 0px;
-    font-size: 10px;
+    font-family: sans-serif;
+    font-size: 14px;
     background-color: #114024;
     color: #fff;
 }
@@ -120,7 +121,7 @@ canvas {
 }
 
 @media screen and (min-device-width:1120px) {
-:-webkit-full-screen { 
+:-webkit-full-screen {
     background: #000;
 }
 
@@ -179,6 +180,12 @@ canvas {
 #keyboard {
     border-radius: 6px;
     padding: 0px 0px 3px 0px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 #keyboard .row {
@@ -215,7 +222,6 @@ canvas {
     height: 34px;
     background-color: #44372C;
     color: white;
-    vertical-align: bottom;
     text-align: center;
     position: relative;
     border: 5px outset #66594E;
@@ -331,6 +337,10 @@ canvas {
     font-family: Courier, fixed;
 }
 
+#text_input .controls {
+    padding-bottom: 5px;
+}
+
 #player {
     position: absolute;
     left: 290px;
@@ -363,4 +373,111 @@ canvas {
     height: 10px;
     position: absolute;
     background: brown;
+}
+
+.modal {
+    display: none;
+}
+
+.modal.is-open {
+    display: block;
+}
+
+.modal__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal__container {
+    background-color: #c4c1a0;
+    padding: 10px;
+    max-height: 100vh;
+    border-radius: 4px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.modal__header {
+    display: flex;
+    font-size: 14px;
+    justify-content: space-between;
+    align-items: center;
+    background: #44372C;
+    color: #fff;
+    padding: 5px 11px;
+    border: 1px outset #66594E;
+    border-radius: 3px;
+}
+
+.modal__title {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.25;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.modal__close, .modal__close:active, .modal__close:hover {
+    background: transparent;
+    padding: 3px;
+}
+
+.modal__header .modal__close:before {
+    content: "\2715";
+}
+
+.modal__content {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #000;
+}
+
+.modal__footer {
+    text-align: right;
+}
+
+button {
+    background: #44372C;
+    color: #fff;
+    padding: 2px 8px;
+    border: 1px outset #66594E;
+    border-radius: 3px;
+    font-size: 15px;
+}
+
+button:hover {
+    background-color: #55473D;
+    border: 1px outset #66594E;
+}
+
+button:active {
+    background-color: #22150A;
+    border: 1px outset #44372C;
+}
+
+button:focus {
+    outline: none;
+}
+
+#options-modal {
+    width: 300px;
+    line-height: 1.75em;
+}
+
+#options-modal h3 {
+    font-size: 13px;
+}
+
+#options-modal li {
+    list-style-type: none;
 }
