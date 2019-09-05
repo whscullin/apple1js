@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<!-- -*- mode: HTML; indent-tabs-mode: nil -*- -->
+<!-- Copyright 2010 Will Scullin -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="keywords" content="apple2,apple,ii,javascript,emulator,html5" />
+    <link rel="shortcut icon" href="logoicon.png" />
+    <link rel="stylesheet" type="text/css" href="css/apple1.css" />
+    <title>About Apple 1js</title>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19205057-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    <meta property="og:title" content="About Apple 1js" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Apple 1js is an Apple 1 emulator written using only JavaScript and HTML5." />
+    <meta property="og:url" content="http://www.scullinsteel.com/apple1/about.html" />
+    <meta property="og:image" content="http://www.scullinsteel.com/apple1/img/image.png" />
+    <meta property="fb:admins" content="700585391" />
+  </head>
+  <body id="about">
+    <div style="text-align: center">
+      <span class="motter" style="font-size: 2em">Apple 1js</span>
+    </div>
+    <div style="max-width: 800px; margin: auto">
+    <h2>What is this?</h2>
+    <span class="motter"><a href="../apple1/">Apple 1js</a></span>
+    is an Apple 1 emulator written entirely in JavaScript and HTML5.
+    <h2>Updates</h2>
+    <h3>2013-06-25</h3>
+    <ul>
+      <li><h4>ACI Emulation</h4>
+        Programs are now loaded via ACI emulation off of virtual tapes.
+        This is slower than just slamming them into memory, faster
+        than emulated typing.
+        Actually loading programs from audio files is on my radar, but
+        quite a bit more work.
+      </li>
+    </ul>
+    <h3>2013-06-05</h3>
+    <ul>
+      <li><h4>More Accurater</h4>
+        I've scraped the Internet for more information. For instance
+        <a href="http://cameronscloset.com/category/apple-1/">
+          Cameron's Closet
+        </a> had some nice info on character display.
+      </li>
+      <li><h4>Krusader off by default</h4>
+        Krusader seems to cause some output weirdness outside of the Krusader
+        shell, so I'm not using it by default anymore.
+        Use #krusader to turn it back on.
+      </li>
+    </ul>
+    <h3>2013-05-28</h3>
+    <ul>
+      <li><h4>Less Limited Input</h4>
+        Pasting into the load window is now the same as typing. For now it
+        is not any faster, though.
+      </li>
+    </ul>
+    <h3>2013-05-27</h3>
+    <ul>
+      <li><h4>Krusader</h4>
+        I've decided to use
+        <a href="http://school.anhb.uwa.edu.au/personalpages/kwessen/apple1/Krusader.htm">Krusader</a>
+        as the default ROM for now. I'm just starting to find my way around it,
+        but other Apple 1 people might find it useful.
+      </li>
+    </ul>
+    <h2>Requirements</h2>
+    <ul>
+      <li><h3>A Browser with HTML5 Support</h3>
+        The most recent versions of
+        <a href="http://www.google.com/chrome/" target="_blank">
+          Google Chrome</a>,
+        <a href="http://www.apple.com/safari/" target="_blank">
+          Safari</a>,
+        <a href="http://www.firefox.com/" target="_blank" >
+          Firefox</a>, and
+        <a href="http://www.opera.com/" target="_blank">
+          Opera</a>
+        all seem to work reasonably well these days, although
+        variations in HTML5 support pop up, and occasionally a major release
+        will move things around out from under me.
+        IEs prior to 9 lacks canvas tag support and are unsupported.
+        <a href="http://windows.microsoft.com/ie9">IE 9+</a> renders nicely on
+        a modern machine.<br/>
+      </li>
+      <li><h3>Basic Knowledge of the Apple 1</h3>
+        If you don't know how to use an Apple 1, this won't be much fun for
+        you. A good place to start is the <a href="http://applefritter.com/apple1">Apple I Owners Club</a>.
+      </li>
+    </ul>
+    <h2>Known Limitations</h2>
+    <ul>
+      <li><h3>Limited Accuracy</h3>
+        Unlike the <a href="../apple2/">Apple ][</a> I wrote an emulator for, I don't own an Apple 1.
+        My emulation is based on all the reference materials I was able to dig up, and by comparison
+        to the behavior of other emulators.
+      </li>
+    </ul>
+    <h2>Acknowlegements</h2>
+    <ul>
+      <li>
+        <h3>I'm using the following libraries:</h3>
+        <ul>
+          <li>
+            <a href="http://jquery.com">jQuery</a> and
+            <a href="http://jqueryui.com">jQuery UI</a>
+          </li>
+          <li>
+            <a href="http://www.JSON.org/json2.js">JSON 2</a>
+          </li>
+          <li>
+            Base64 Utilities via
+            <a href="http://kevin.vanzonneveld.net/">KvZ</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <h3>I heavily referenced:</h3>
+        <ul>
+          <li>
+            <a href="http://applefritter.com/apple1">Apple I Owners Club</a>
+            and the <a href="http://applefritter.com/forum">applefritter forums</a>.
+          </li>
+        </ul>
+      <li>
+        <h3>And special thanks to:</h3>
+        <ul>
+          <li>
+            <a href="http://www.willegal.net/index.htm">Mike</a> for an eclectic
+            collection of useful information. Someday I will work up the nerve
+            to try building a replica.
+          </li>
+          <li>
+            And of course <a href="http://www.woz.org">Woz</a>, for launching my 30+ years
+            of both silly and practical computer projects.
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h2>Contact</h2>
+    <ul>
+      <li>
+        <a href="mailto:apple1js@scullinsteel.com">apple1js@scullinsteel.com</a>
+      </li>
+    </ul>
+    </div>
+  </body>
+</html>

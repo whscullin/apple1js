@@ -1,0 +1,366 @@
+/* Copyright 2010-2013 Will Scullin */
+
+img {
+    border: none;
+}
+
+img#badge {
+    padding: 0px 12px;
+    cursor: pointer;
+}
+
+h1 {
+    margin: 0px;
+    padding: 3px 0px 0px 10px;
+    color: #fff;
+    font-family: Helvetica, Ariel;
+    font-size: 17px;
+    font-weight: normal;
+}
+
+h2 {
+    margin: 0px;
+    padding: 3px 0px 0px 10px;
+    color: #fff;
+    font-family: Helvetica, Ariel;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+input[type="button"] {
+    width: 75px;
+}
+
+input[type="text"] {
+    width: 40px;
+}
+
+body {
+    margin: 16px 0px;
+    font-size: 10px;
+    background-color: #114024;
+    color: #fff;
+}
+
+#display {
+    margin: 5px 0px;
+}
+
+.overscan {
+    margin: auto;
+    position: relative;
+    background-color: black;
+    padding: 16px;
+    width: 560px;
+    height: 384px;
+    border: 6px solid #75d475;
+    border-radius: 10px;
+}
+
+#power {
+    padding: 2px;
+    border: 1px inset #ddc364;
+}
+
+span.code {
+    font-family: Courier;
+    font-size: 14px;
+    white-space: pre;
+}
+
+th {
+    background-color: #ccc;
+}
+
+.inset {
+    background: #114024;
+    width: 590px;
+    border-radius: 6px;
+    border: 3px solid #75d475;
+    padding: 6px;
+    margin: 10px 0px;
+    position: relative;
+}
+
+#speed {
+    margin: 9px 0px;
+    width: 200px;
+}
+
+#khz {
+    margin-right: 4px;
+    padding: 4px;
+    float: left;
+    font-family: Courier;
+    font-size: 12px;
+    width: 60px;
+    height: 15px;
+    text-align: right;
+    background: #000;
+    color: #fff;
+    border: 2px solid #75d475;
+    border-radius: 4px;
+}
+
+canvas {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    cursor: crosshair;
+    width: 560px;
+    height: 384px;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+}
+
+:-webkit-full-screen #display {
+    width: 100%;
+    height: 100%;
+}
+
+@media screen and (min-device-width:1120px) {
+:-webkit-full-screen { 
+    background: #000;
+}
+
+:-webkit-full-screen .overscan {
+    border: 0px none !important;
+    width: 1120px;
+    height: 768px;
+}
+
+:-webkit-full-screen canvas {
+    width: 1120px;
+    height: 768px;
+}
+
+:-webkit-full-screen #scanlines {
+    width: 1120px;
+    height: 768px;
+}
+}
+
+#scanlines {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    cursor: crosshair;
+    z-index: 1;
+    width: 560px;
+    height: 384px;
+}
+
+#about iframe {
+    border: 1px inset #666;
+    width: 99%;
+    height: 99%;
+}
+
+#about {
+    padding: 16px;
+    margin: 0px;
+    font-family: "Adobe Garamond Pro",Garamond,Times;
+    font-size: 14px;
+    background-color: #fff;
+    color: #000;
+}
+
+#about a {
+    background-color: #fff;
+    color: #000;
+}
+
+#load select {
+    width: 250px;
+    height: 300px;
+}
+
+#keyboard {
+    border-radius: 6px;
+    padding: 0px 0px 3px 0px;
+}
+
+#keyboard .row {
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    height: 43px;
+    font-family: Helvetica;
+    width: 605px;
+}
+
+#keyboard .row0 {
+    margin-left: 20px;
+}
+
+#keyboard .row2 {
+    margin-left: 10px;
+}
+
+#keyboard .row3 {
+    margin-left: 10px;
+}
+
+#keyboard .row4 {
+    margin-left: 10px;
+}
+
+#keyboard .key {
+    display: block;
+    float: left;
+    margin: 0px;
+    padding: 0px;
+    width: 34px;
+    height: 34px;
+    background-color: #44372C;
+    color: white;
+    vertical-align: bottom;
+    text-align: center;
+    position: relative;
+    border: 5px outset #66594E;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#keyboard .pressed {
+    background-color: #22150A;
+    border: 5px outset #44372C;
+}
+
+#keyboard .key div {
+    border-radius: 3px;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    text-align: center;
+}
+
+#keyboard .vcenter div {
+    bottom: 10px;
+}
+
+#keyboard .vcenter2 div {
+    bottom: 5px;
+}
+
+#keyboard .key span {
+    font-size: 14px;
+}
+
+#keyboard .key span.small {
+    font-size: 7px;
+}
+
+#keyboard .key-SHIFT {
+    width: 53px;
+}
+
+#keyboard .active {
+    color: #4f4;
+}
+
+#keyboard .key-RETURN {
+    width: 52px;
+}
+
+#keyboard .key-DELETE {
+    width: 47px;
+}
+
+#keyboard .key-TAB {
+    width: 47px;
+}
+
+#keyboard .key-nbsp {
+    margin-left: 104px;
+    width: 330px;
+}
+
+#keyboard .key-POW {
+    width: 38px;
+    height: 38px;
+    border: 2px groove black;
+    background-color: #ffd;
+    color: black;
+    border-radius: 2px;
+}
+
+#keyboard .key-POW div {
+    bottom: 15px;
+}
+
+#keyboard .key-POW span {
+    background: #4f4;
+    color: #4f4;
+}
+
+#keyboard .key-OPEN_APPLE div {
+    background-image: url(../img/open-apple24.png);
+    width: 24px;
+    height: 24px;
+    bottom: 1px;
+    left: 4px;
+}
+
+#keyboard .key-OPEN_APPLE span {
+    display: none;
+}
+
+#keyboard .key-OPEN_APPLE.active div {
+    background-image: url(../img/open-apple24-green.png);
+}
+
+#keyboard .key-CLOSED_APPLE div {
+    background-image: url(../img/closed-apple24.png);
+    width: 24px;
+    height: 24px;
+    bottom: 1px;
+    left: 4px;
+}
+
+#keyboard .key-CLOSED_APPLE.active div {
+    background-image: url(../img/closed-apple24-green.png);
+}
+
+#keyboard .key-CLOSED_APPLE span {
+    display: none;
+}
+
+#text_input {
+    font-family: Courier, fixed;
+}
+
+#player {
+    position: absolute;
+    left: 290px;
+    top: 12px;
+    border: 2px solid #75d475;
+    border-radius: 4px;
+    width: 100px;
+    height: 10px;
+    background: black;
+    text-align: center;
+}
+
+#supply {
+    width: 75px;
+    height: 10px;
+    position: absolute;
+    background: brown;
+}
+
+#takeup {
+    width: 0px;
+    height: 10px;
+    position: absolute;
+    right: 0px;
+    background: brown;
+}
+
+#tape {
+    width: 0px;
+    height: 10px;
+    position: absolute;
+    background: brown;
+}

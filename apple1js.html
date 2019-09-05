@@ -1,0 +1,161 @@
+<!DOCTYPE html><!-- -*- mode: HTML; indent-tabs-mode: nil -*- -->
+<!--
+ Copyright 2010-2019 Will Scullin <scullin@scullinsteel.com>
+
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.  No representations are made about the suitability of this
+ software for any purpose.  It is provided "as is" without express or
+ implied warranty.
+-->
+<html>
+<head>
+
+<title>Apple 1js - An Apple 1 Emulator in JavaScript</title>
+
+<meta name="viewport" content="width=device-width user-scalable=0" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta charset="utf-8" />
+<meta name="description" content="Apple 1js is an Apple 1 emulator written using only JavaScript and HTML5. Works best in the Chrome and Safari browsers." />
+<meta name="keywords" content="apple1,apple,i,javascript,emulator,html5" />
+
+<link rel="apple-touch-icon" href="img/webapp-iphone.png" />
+<link rel="apple-touch-icon" size="72x72" href="img/webapp-ipad.png" />
+<link rel="shortcut icon" href="logoicon.png" />
+<link rel="stylesheet" type="text/css" href="css/apple1.css" />
+<link rel="stylesheet" type="text/css"
+      href="css/custom-choc/jquery-ui-1.8.all.css" />
+
+<meta property="og:title" content="Apple 1js" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Apple 1js is an Apple 1 emulator written using only JavaScript and HTML5." />
+<meta property="og:url" content="https://www.scullinsteel.com/apple1/" />
+<meta property="og:image" content="https://www.scullinsteel.com/apple1/img/image.png" />
+
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
+
+<!-- Tapes -->
+<script type="text/javascript">
+var tapes = {};
+</script>
+<script type="text/javascript" src="tapes/apple30th.js"></script>
+<script type="text/javascript" src="tapes/applesoft.js"></script>
+<script type="text/javascript" src="tapes/basic.js"></script>
+<script type="text/javascript" src="tapes/blackjack.js"></script>
+<script type="text/javascript" src="tapes/checkers.js"></script>
+<script type="text/javascript" src="tapes/codebreaker.js"></script>
+<script type="text/javascript" src="tapes/hamurabi.js"></script>
+<script type="text/javascript" src="tapes/life.js"></script>
+<script type="text/javascript" src="tapes/little_tower.js"></script>
+<script type="text/javascript" src="tapes/lunar_lander.js"></script>
+<script type="text/javascript" src="tapes/matrix.js"></script>
+<script type="text/javascript" src="tapes/monitor.js"></script>
+<script type="text/javascript" src="tapes/microchess.js"></script>
+<script type="text/javascript" src="tapes/slots.js"></script>
+<script type="text/javascript" src="tapes/startrek.js"></script>
+<script type="text/javascript" src="tapes/startrek2003.js"></script>
+<script type="text/javascript" src="tapes/volksforth.js"></script>
+<script type="text/javascript" src="tapes/wumpus2.js"></script>
+
+<!-- Web FE -->
+</head>
+<body>
+  <div style="margin: auto; width: 604px">
+    <h1 style="font-size: 24px" class="motter">Apple 1js</h1>
+    <h2 id="subtitle">An Apple 1 Emulator in JavaScript</h2>
+    <table id="display">
+      <tr>
+        <td style="vertical-align: top">
+          <div role="textbox" class="overscan"
+               onkeydown="_keydown(event);"
+               onkeyup="_keyup(event);">
+            <canvas id="text" width="560" height="384"></canvas>
+          </div>
+          <div style="color: #75d475; position: absolute">Type E000R for BASIC</div>
+        </td>
+      </tr>
+    </table>
+    <div class="inset">
+      <div id="khz" onclick="Apple1.toggleFPS()">0KHz</div>
+      <input type="button" value="Pause" onclick="Apple1.pauseRun(this)" />
+      <input type="button" value="Load" onclick="Apple1.openLoadText(event)" />
+      <div id="player">
+        <!--
+        <div id="supply"></div>
+        <div id="takeup"></div>
+        -->
+        <div id="tape"></div>
+      </div>
+      <div style="float: right">
+        <input type="button" onclick="window.open('about.html','_html')"
+               name="About" value="About">
+        <input type="button" onclick="$('#options').dialog('open')"
+               name="Options" value="Options">
+      </div>
+    </div>
+    <div class="inset">
+      <div style="margin: 0px 0px">
+        <div id="keyboard"></div>
+      </div>
+    </div>
+  </div>
+  <div id="options" title="Options" style="display: none">
+    <h3>CPU</h3>
+    <ul>
+      <li>
+        <input type="checkbox" checked="checked" id="speed_toggle"
+               onclick="Apple1.toggleSpeed()"/>
+        <label for="speed_toggle">
+          Regulate Speed
+        </label>
+      </li>
+    </ul>
+    <h3>Monitor</h3>
+    <ul>
+      <li>
+        <input type="checkbox" id="green_screen"
+               onclick="Apple1.updateScreen()" />
+        <label for="green_screen">
+          Green Screen
+        </label>
+      </li>
+      <li>
+        <input type="checkbox" id="show_scanlines"
+               onclick="Apple1.updateScreen()" />
+        <label for="show_scanlines">
+          Show Scanlines
+        </label>
+      </li>
+    </ul>
+    <h3>I/O</h3>
+    <ul>
+      <li>
+        <input type="checkbox" id="turbo_tape"
+               onclick="Apple1.setTurboTape(this.checked)" />
+        <label for="turbo_tape">
+          Turbo Tape Loading
+        </label>
+      </li>
+    </ul>
+  </div>
+  <div id="input_text" title="Input Text" style="display: none">
+    <form action="#">
+      <select id="tape_select">
+        <option>Or Select Tape...</option>
+      </select>
+      <input type="button" onclick="$('#text_input').val('')"
+             name="Clear" value="Clear" />
+      <textarea id="text_input" rows="24" cols="80"></textarea>
+    </form>
+  </div>
+  <div id="local" title="Load Local File" style="display: none">
+    <form action="#">
+      <input type="file" id="local_file" />
+    </form>
+  </div>
+  <script type="text/javascript" src="dist/apple1.js"></script>
+</body>
+</html>

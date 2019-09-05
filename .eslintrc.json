@@ -1,0 +1,53 @@
+{
+    "rules": {
+        "indent": [
+            2,
+            4
+        ],
+        "quotes": [
+            2,
+            "single"
+        ],
+        "linebreak-style": [
+            2,
+            "unix"
+        ],
+        "semi": [
+            2,
+            "always"
+        ]
+    },
+    "env": {
+        "builtin": true,
+        "browser": true,
+        "jquery": true,
+        "es6": true
+    },
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "extends": "eslint:recommended",
+    "overrides": [
+        {
+            "files": [ "bin/*", "babel.config.js", "webpack.config.js" ],
+            "rules": {
+                "no-console": 0
+            },
+            "env": {
+                "node": true,
+                "jquery": false,
+                "browser": false
+            }
+        }, {
+            "files": [ "test/*"],
+            "env": {
+                "jest": true
+            }
+        }, {
+            "files": [ "js/entry1.js"],
+            "env": {
+                "commonjs": true
+            }
+        }
+    ]
+}

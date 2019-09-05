@@ -1,0 +1,42 @@
+{
+  "name": "apple1js",
+  "version": "0.0.1",
+  "description": "An Apple 1 Emulator in Javascript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack-dev-server",
+    "lint": "eslint js",
+    "start": "webpack-dev-server",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whscullin/apple1js"
+  },
+  "keywords": [
+    "Apple 1",
+    "Emulator",
+    "Javascript"
+  ],
+  "author": "Will Scullin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/whscullin/apple1js/issues"
+  },
+  "homepage": "https://github.com/whscullin/apple1js#readme",
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
+    "ajv": "^6.9.2",
+    "babel-jest": "^24.5.0",
+    "eslint": "^5.16.0",
+    "jest": "^24.8.0",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  },
+  "dependencies": {
+    "micromodal": "^0.3.2"
+  }
+}
