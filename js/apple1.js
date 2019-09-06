@@ -74,33 +74,42 @@ aci.setData(window.tapes['Microchess'].tracks);
 
 // Audio Buffer Source
 var context;
-if (typeof window.webkitAudioContext != 'undefined') {
-    context = new window.webkitAudioContext();
+if (typeof window.webkitAudioContext !== 'undefined') {
+    context = window.webkitAudioContext;
+} else if (typeof window.AudioContext !== 'undefined') {
+    context = new window.AudioContext();
 }
 
 export function doLoadLocal() {
+    context.resume();
     var files = document.querySelector('#local_file').files;
     if (files.length == 1) {
         var file = files[0];
         var fileReader = new FileReader();
         fileReader.onload = function(ev) {
-            context.decodeAudioData(ev.target.result, function(buffer) {
-                var buf = [];
-                var data = buffer.getChannelData(0);
-                var old = (data[0] > 0.25);
-                var last = 0;
-                for (var idx = 1; idx < data.length; idx++) {
-                    var current = (data[idx] > 0.25);
-                    if (current != old) {
-                        var delta = idx - last;
-                        buf.push(parseInt(delta / buffer.sampleRate * 1023000));
-                        old = current;
-                        last = idx;
+            context.decodeAudioData(
+                ev.target.result,
+                function(buffer) {
+                    var buf = [];
+                    var data = buffer.getChannelData(0);
+                    var old = (data[0] > 0.25);
+                    var last = 0;
+                    for (var idx = 1; idx < data.length; idx++) {
+                        var current = (data[idx] > 0.25);
+                        if (current != old) {
+                            var delta = idx - last;
+                            buf.push(parseInt(delta / buffer.sampleRate * 1023000));
+                            old = current;
+                            last = idx;
+                        }
                     }
+                    aci.buffer = buf;
+                    MicroModal.close('local-modal');
+                },
+                function(error) {
+                    window.alert(error.message);
                 }
-                aci.buffer = buf;
-                MicroModal.close('local-modal');
-            });
+            );
         };
         fileReader.readAsArrayBuffer(file);
     }
