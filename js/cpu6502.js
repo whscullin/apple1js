@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 Will Scullin <scullin@scullinsteel.com>
+ * Copyright 2010-2019 Will Scullin <scullin@scullinsteel.com>
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -46,7 +46,8 @@ export default function CPU6502(options)
 
         /* 65c02 */
         zeroPageIndirect:   13,  // (zp),
-        absoluteXIndirect:  14   // (a, X)
+        absoluteXIndirect:  14,  // (a, X),
+        zeroPage_relative:  15   // zp, Relative
     };
 
     var sizes = {
@@ -65,7 +66,8 @@ export default function CPU6502(options)
         12 /* modes.zeroPageYIndirect */: 2,
 
         13 /* mode.zeroPageIndirect */: 2,
-        14 /* mode.absoluteXIndirect */: 3
+        14 /* mode.absoluteXIndirect */: 3,
+        15 /* mode.zeroPage_relative */: 3
     };
 
     /* Flags */
@@ -92,8 +94,8 @@ export default function CPU6502(options)
     var readPages = [];
     var writePages = [];
     var resetHandlers = [];
-    var inCallback = false;
     var cycles = 0;
+    var sync = false;
 
     var blankPage = {
         read: function() { return 0; },
@@ -111,7 +113,7 @@ export default function CPU6502(options)
 
     function testNZ(val) {
         sr = val === 0 ? (sr | flags.Z) : (sr & ~flags.Z);
-        sr = val & 0x80 ? (sr | flags.N) : (sr & ~flags.N);
+        sr = (val & 0x80) ? (sr | flags.N) : (sr & ~flags.N);
 
         return val;
     }
@@ -128,7 +130,7 @@ export default function CPU6502(options)
 
         // KEGS
         var c, v;
-        if (sr & flags.D) {
+        if ((sr & flags.D) !== 0) {
             c = (a & 0x0f) + (b & 0x0f) + (sr & flags.C);
             if (sub) {
                 if (c < 0x10)
@@ -150,8 +152,9 @@ export default function CPU6502(options)
             v = (c ^ a) & 0x80;
         }
 
-        if ((a ^ b) & 0x80)
+        if (((a ^ b) & 0x80) !== 0) {
             v = 0;
+        }
 
         setFlag(flags.C, c > 0xff);
         setFlag(flags.V, v);
@@ -172,14 +175,26 @@ export default function CPU6502(options)
             page = addr >> 8,
             off = addr & 0xff;
 
-        return readPages[page].read(page, off, dbg);
+        var result = readPages[page].read(page, off, dbg);
+
+        if (!dbg) {
+            cycles++;
+        }
+
+        return result;
     }
 
     function readByte(addr, dbg) {
         var page = addr >> 8,
             off = addr & 0xff;
 
-        return readPages[page].read(page, off, dbg);
+        var result = readPages[page].read(page, off, dbg);
+
+        if (!dbg) {
+            cycles++;
+        }
+
+        return result;
     }
 
     function writeByte(addr, val) {
@@ -187,6 +202,8 @@ export default function CPU6502(options)
             off = addr & 0xff;
 
         writePages[page].write(page, off, val);
+
+        cycles++;
     }
 
     function readWord(addr, dbg) {
@@ -218,22 +235,12 @@ export default function CPU6502(options)
 
     function pullByte() {
         sp = (sp + 0x01) & 0xff;
-        var result = readByte(loc.STACK | sp);
-        return result;
+        return readByte(loc.STACK | sp);
     }
 
-    function pullWord() {
-        var lsb = pullByte(),
-            msb = pullByte();
-
-        return (msb << 8) | lsb;
-    }
-
-    function indirectBug(addr) {
-        var page = addr & 0xff00;
-        var off = addr & 0xff;
-        var lsb = readByte(page | (off & 0xff));
-        var msb = readByte(page | ((off + 0x01) & 0xff));
+    function pullWordRaw() {
+        var lsb = pullByte(loc.STACK | sp);
+        var msb = pullByte(loc.STACK | sp);
 
         return (msb << 8) | lsb;
     }
@@ -241,6 +248,9 @@ export default function CPU6502(options)
     /*
      * Read functions
      */
+
+    function readImplied() {
+    }
 
     // #$00
     function readImmediate() {
@@ -259,48 +269,61 @@ export default function CPU6502(options)
 
     // $0000,X
     function readAbsoluteX() {
-        var addr = readWordPC(), oldPage = addr >> 8, page;
+        var addr = readWordPC();
+        var oldPage = addr >> 8;
         addr = (addr + xr) & 0xffff;
-        page = addr >> 8;
-        if (page != oldPage) {
-            cycles++;
+        var newPage = addr >> 8;
+        if (newPage != oldPage) {
+            var off = addr & 0xff;
+            readByte(oldPage << 8 | off);
         }
         return readByte(addr);
     }
 
     // $0000,Y
     function readAbsoluteY() {
-        var addr = readWordPC(), oldPage = addr >> 8, page;
+        var addr = readWordPC();
+        var oldPage = addr >> 8;
         addr = (addr + yr) & 0xffff;
-        page = addr >> 8;
-        if (page != oldPage) {
-            cycles++;
+        var newPage = addr >> 8;
+        if (newPage != oldPage) {
+            var off = addr & 0xff;
+            readByte(oldPage << 8 | off);
         }
         return readByte(addr);
     }
 
     // $00,X
     function readZeroPageX() {
-        return readByte((readBytePC() + xr) & 0xff);
+        var zpAddr = readBytePC();
+        readByte(zpAddr);
+        return readByte((zpAddr + xr) & 0xff);
     }
 
     // $00,Y
     function readZeroPageY() {
-        return readByte((readBytePC() + yr) & 0xff);
+        var zpAddr = readBytePC();
+        readByte(zpAddr);
+        return readByte((zpAddr + yr) & 0xff);
     }
 
     // ($00,X)
     function readZeroPageXIndirect() {
-        return readByte(readZPWord((readBytePC() + xr) & 0xff));
+        var zpAddr = readBytePC();
+        readByte(zpAddr);
+        var addr = readZPWord((zpAddr + xr) & 0xff);
+        return readByte(addr);
     }
 
     // ($00),Y
     function readZeroPageIndirectY() {
-        var addr = readZPWord(readBytePC()), oldPage = addr >> 8, page;
+        var addr = readZPWord(readBytePC());
+        var oldPage = addr >> 8;
         addr = (addr + yr) & 0xffff;
-        page = addr >> 8;
-        if (page != oldPage) {
-            cycles++;
+        var newPage = addr >> 8;
+        if (newPage != oldPage) {
+            var off = addr & 0xff;
+            readByte(oldPage << 8 | off);
         }
         return readByte(addr);
     }
@@ -326,32 +349,51 @@ export default function CPU6502(options)
 
     // $0000,X
     function writeAbsoluteX(val) {
-        writeByte((readWordPC() + xr) & 0xffff, val);
+        var addr = readWordPC(), oldPage = addr >> 8;
+        addr = (addr + xr) & 0xffff;
+        var off = addr & 0xff;
+        readByte(oldPage << 8 | off);
+        writeByte(addr, val);
     }
 
     // $0000,Y
     function writeAbsoluteY(val) {
-        writeByte((readWordPC() + yr) & 0xffff, val);
+        var addr = readWordPC(), oldPage = addr >> 8;
+        addr = (addr + yr) & 0xffff;
+        var off = addr & 0xff;
+        readByte(oldPage << 8 | off);
+        writeByte(addr, val);
     }
 
     // $00,X
     function writeZeroPageX(val) {
-        writeByte((readBytePC() + xr) & 0xff, val);
+        var zpAddr = readBytePC();
+        readByte(zpAddr);
+        writeByte((zpAddr + xr) & 0xff, val);
     }
 
     // $00,Y
     function writeZeroPageY(val) {
-        writeByte((readBytePC() + yr) & 0xff, val);
+        var zpAddr = readBytePC();
+        readByte(zpAddr);
+        writeByte((zpAddr + yr) & 0xff, val);
     }
 
     // ($00,X)
     function writeZeroPageXIndirect(val) {
-        writeByte(readZPWord((readBytePC() + xr) & 0xff), val);
+        var zpAddr = readBytePC();
+        readByte(zpAddr);
+        var addr = readZPWord((zpAddr + xr) & 0xff);
+        writeByte(addr, val);
     }
 
     // ($00),Y
     function writeZeroPageIndirectY(val) {
-        writeByte((readZPWord(readBytePC()) + yr) & 0xffff, val);
+        var addr = readZPWord(readBytePC()), oldPage = addr >> 8;
+        addr = (addr + yr) & 0xffff;
+        var off = addr & 0xff;
+        readByte(oldPage << 8 | off);
+        writeByte(addr, val);
     }
 
     // ($00) (65C02)
@@ -366,7 +408,9 @@ export default function CPU6502(options)
 
     // $00,X
     function readAddrZeroPageX() {
-        return (readBytePC() + xr) & 0xff;
+        var zpAddr = readBytePC();
+        readByte(zpAddr);
+        return (zpAddr + xr) & 0xff;
     }
 
     // $0000 (65C02)
@@ -374,31 +418,47 @@ export default function CPU6502(options)
         return readWordPC();
     }
 
-    // $0000
+    // ($0000) (6502)
     function readAddrAbsoluteIndirectBug() {
-        return indirectBug(readWordPC());
+        var addr = readWordPC();
+        var page = addr & 0xff00;
+        var off = addr & 0x00ff;
+        var lsb = readByte(addr);
+        var msb = readByte(page | ((off + 0x01) & 0xff));
+        return msb << 8 | lsb;
     }
 
-    // ($0000)
+    // ($0000) (65C02)
     function readAddrAbsoluteIndirect() {
-        return readWord(readWordPC());
+        var lsb = readBytePC();
+        var msb = readBytePC();
+        readByte(pc);
+        return readWord(msb << 8 | lsb);
     }
 
     // $0000,X
-    function readAddrAbsoluteX() {
-        return (readWordPC() + xr) & 0xffff;
+    function readAddrAbsoluteX(opts) {
+        var addr = readWordPC();
+        if (!is65C02 || (opts && opts.rwm)) {
+            readByte(addr);
+        } else {
+            readByte(pc);
+        }
+        return (addr + xr) & 0xffff;
     }
 
-    // $(0000,X)
+    // $(0000,X) (65C02)
     function readAddrAbsoluteXIndirect() {
-        return readWord((readWordPC() + xr) & 0xffff);
+        var address = readWordPC();
+        readByte(pc);
+        return readWord((address + xr) & 0xffff);
     }
 
     /* Break */
     function brk(readFn) {
         readFn();
         pushWord(pc);
-        php();
+        pushByte(sr | flags.B);
         if (is65C02) {
             setFlag(flags.D, false);
         }
@@ -453,41 +513,53 @@ export default function CPU6502(options)
 
     /* Increment Memory */
     function incA() {
+        readByte(pc);
         ar = increment(ar);
     }
 
     function inc(readAddrFn) {
-        var addr = readAddrFn();
-        writeByte(addr, increment(readByte(addr)));
+        var addr = readAddrFn({rwm: true});
+        var oldVal = readByte(addr);
+        writeByte(addr, oldVal);
+        var val = increment(oldVal);
+        writeByte(addr, val);
     }
 
     /* Increment X */
     function inx() {
+        readByte(pc);
         xr = increment(xr);
     }
 
     /* Increment Y */
     function iny() {
+        readByte(pc);
         yr = increment(yr);
     }
 
     /* Decrement Memory */
     function decA() {
+        readByte(pc);
         ar = decrement(ar);
     }
 
     function dec(readAddrFn) {
-        var addr = readAddrFn();
-        writeByte(addr, decrement(readByte(addr)));
+        var addr = readAddrFn({rwm: true});
+        var oldVal = readByte(addr);
+        writeByte(addr, oldVal);
+        var val = decrement(oldVal);
+        writeByte(addr, val);
     }
 
     /* Decrement X */
     function dex() {
+        readByte(pc);
         xr = decrement(xr);
     }
 
     /* Decrement Y */
     function dey() {
+        readByte(pc);
         yr = decrement(yr);
     }
 
@@ -496,14 +568,18 @@ export default function CPU6502(options)
         return testNZ((val << 1) & 0xff);
     }
 
-    /* Arithmatic Shift Left */
+    /* Arithmetic Shift Left */
     function aslA() {
+        readByte(pc);
         ar = shiftLeft(ar);
     }
 
     function asl(readAddrFn) {
-        var addr = readAddrFn();
-        writeByte(addr, shiftLeft(readByte(addr)));
+        var addr = readAddrFn({rwm: true});
+        var oldVal = readByte(addr);
+        writeByte(addr, oldVal);
+        var val = shiftLeft(oldVal);
+        writeByte(addr, val);
     }
 
     function shiftRight(val) {
@@ -513,12 +589,16 @@ export default function CPU6502(options)
 
     /* Logical Shift Right */
     function lsrA() {
+        readByte(pc);
         ar = shiftRight(ar);
     }
 
     function lsr(readAddrFn) {
-        var addr = readAddrFn();
-        writeByte(addr, shiftRight(readByte(addr)));
+        var addr = readAddrFn({rwm: true});
+        var oldVal = readByte(addr);
+        writeByte(addr, oldVal);
+        var val = shiftRight(oldVal);
+        writeByte(addr, val);
     }
 
     function rotateLeft(val) {
@@ -529,12 +609,16 @@ export default function CPU6502(options)
 
     /* Rotate Left */
     function rolA() {
+        readByte(pc);
         ar = rotateLeft(ar);
     }
 
     function rol(readAddrFn) {
-        var addr = readAddrFn();
-        writeByte(addr, rotateLeft(readByte(addr)));
+        var addr = readAddrFn({rwm: true});
+        var oldVal = readByte(addr);
+        writeByte(addr, oldVal);
+        var val = rotateLeft(oldVal);
+        writeByte(addr, val);
     }
 
     function rotateRight(a) {
@@ -545,12 +629,16 @@ export default function CPU6502(options)
 
     /* Rotate Right */
     function rorA() {
+        readByte(pc);
         ar = rotateRight(ar);
     }
 
     function ror(readAddrFn) {
-        var addr = readAddrFn();
-        writeByte(addr, rotateRight(readByte(addr)));
+        var addr = readAddrFn({rwm: true});
+        var oldVal = readByte(addr);
+        writeByte(addr, oldVal);
+        var val = rotateRight(oldVal);
+        writeByte(addr, val);
     }
 
     /* Logical And Accumulator */
@@ -568,26 +656,50 @@ export default function CPU6502(options)
         ar = testNZ(ar ^ readFn());
     }
 
+    /* Reset Bit */
+
+    function rmb(b) {
+        var bit = (0x1 << b) ^ 0xFF;
+        var addr = readBytePC();
+        var val = readByte(addr);
+        readByte(addr);
+        val &= bit;
+        writeByte(addr, val);
+    }
+
+    /* Set Bit */
+
+    function smb(b) {
+        var bit = 0x1 << b;
+        var addr = readBytePC();
+        var val = readByte(addr);
+        readByte(addr);
+        val |= bit;
+        writeByte(addr, val);
+    }
+
     /* Test and Reset Bits */
     function trb(readAddrFn) {
-        var addr = readAddrFn(),
-            val = readByte(addr);
+        var addr = readAddrFn();
+        var val = readByte(addr);
         testZ(val & ar);
+        readByte(addr);
         writeByte(addr, val & ~ar);
     }
 
     /* Test and Set Bits */
     function tsb(readAddrFn) {
-        var addr = readAddrFn(),
-            val = readByte(addr);
+        var addr = readAddrFn();
+        var val = readByte(addr);
         testZ(val & ar);
+        readByte(addr);
         writeByte(addr, val | ar);
     }
 
     /* Bit */
     function bit(readFn) {
         var val = readFn();
-        setFlag(flags.Z, !(val & ar));
+        setFlag(flags.Z, (val & ar) === 0);
         setFlag(flags.N, val & 0x80);
         setFlag(flags.V, val & 0x40);
     }
@@ -595,7 +707,7 @@ export default function CPU6502(options)
     /* Bit Immediate*/
     function bitI(readFn) {
         var val = readFn();
-        setFlag(flags.Z, !(val & ar));
+        setFlag(flags.Z, (val & ar) === 0);
     }
 
     function compare(a, b)
@@ -621,52 +733,94 @@ export default function CPU6502(options)
     /* Branches */
     function brs(f) {
         var off = readBytePC(); // changes pc
-        if (f & sr) {
-            var oldPC = pc;
+        if ((f & sr) !== 0) {
+            readByte(pc);
+            var oldPage = pc >> 8;
             pc += off > 127 ? off - 256 : off;
-            cycles++;
-            if ((pc >> 8) != (oldPC >> 8)) cycles++;
+            var newPage = pc >> 8;
+            var newOff = pc & 0xff;
+            if (newPage != oldPage) readByte(oldPage << 8 | newOff);
         }
     }
 
     function brc(f) {
         var off = readBytePC(); // changes pc
-        if (!(f & sr)) {
-            var oldPC = pc;
+        if ((f & sr) === 0) {
+            readByte(pc);
+            var oldPage = pc >> 8;
             pc += off > 127 ? off - 256 : off;
-            cycles++;
-            if ((pc >> 8) != (oldPC >> 8)) cycles++;
+            var newPage = pc >> 8;
+            var newOff = pc & 0xff;
+            if (newPage != oldPage) readByte(oldPage << 8 | newOff);
+        }
+    }
+
+    /* WDC 65C02 branches */
+
+    function bbr(b) {
+        var zpAddr = readBytePC();
+        var val = readByte(zpAddr);
+        readByte(zpAddr);
+        var off = readBytePC(); // changes pc
+
+        if (((1 << b) & val) === 0) {
+            var oldPc = pc;
+            var oldPage = oldPc >> 8;
+            readByte(oldPc);
+            pc += off > 127 ? off - 256 : off;
+            var newPage = pc >> 8;
+            if (oldPage != newPage) {
+                readByte(oldPc);
+            }
+        }
+    }
+
+    function bbs(b) {
+        var zpAddr = readBytePC();
+        var val = readByte(zpAddr);
+        readByte(zpAddr);
+        var off = readBytePC(); // changes pc
+
+        if (((1 << b) & val) !== 0) {
+            var oldPc = pc;
+            var oldPage = oldPc >> 8;
+            readByte(oldPc);
+            pc += off > 127 ? off - 256 : off;
+            var newPage = pc >> 8;
+            if (oldPage != newPage) {
+                readByte(oldPc);
+            }
         }
     }
 
     /* Transfers and stack */
-    function tax() { testNZ(xr = ar); }
+    function tax() { readByte(pc); testNZ(xr = ar); }
 
-    function txa() { testNZ(ar = xr); }
+    function txa() { readByte(pc); testNZ(ar = xr); }
 
-    function tay() { testNZ(yr = ar); }
+    function tay() { readByte(pc); testNZ(yr = ar); }
 
-    function tya() { testNZ(ar = yr); }
+    function tya() { readByte(pc); testNZ(ar = yr); }
 
-    function tsx() { testNZ(xr = sp); }
+    function tsx() { readByte(pc); testNZ(xr = sp); }
 
-    function txs() { sp = xr; }
+    function txs() { readByte(pc); sp = xr; }
 
-    function pha() { pushByte(ar); }
+    function pha() { readByte(pc); pushByte(ar); }
 
-    function pla() { testNZ(ar = pullByte()); }
+    function pla() { readByte(pc); readByte(0x0100 | sp); testNZ(ar = pullByte()); }
 
-    function phx() { pushByte(xr); }
+    function phx() { readByte(pc); pushByte(xr); }
 
-    function plx() { testNZ(xr = pullByte()); }
+    function plx() { readByte(pc); readByte(0x0100 | sp);testNZ(xr = pullByte()); }
 
-    function phy() { pushByte(yr); }
+    function phy() { readByte(pc); pushByte(yr); }
 
-    function ply() { testNZ(yr = pullByte()); }
+    function ply() { readByte(pc); readByte(0x0100 | sp); testNZ(yr = pullByte()); }
 
-    function php() { pushByte(sr | flags.B); }
+    function php() { readByte(pc); pushByte(sr | flags.B); }
 
-    function plp() { sr = (pullByte() & ~flags.B) | 0x20; }
+    function plp() { readByte(pc); readByte(0x0100 | sp); sr = (pullByte() & ~flags.B) | 0x20; }
 
     /* Jump */
     function jmp(readAddrFn) {
@@ -674,34 +828,46 @@ export default function CPU6502(options)
     }
 
     /* Jump Subroutine */
-    function jsr(readAddrFn) {
-        var dest = readAddrFn();
-        pushWord(pc - 1);
-        pc = dest;
+    function jsr() {
+        var lsb = readBytePC();
+        readByte(0x0100 | sp);
+        pushWord(pc);
+        var msb = readBytePC();
+        pc = (msb << 8 | lsb) & 0xffff;
     }
 
     /* Return from Subroutine */
     function rts() {
-        pc = (pullWord() + 1) & 0xffff;
+        readByte(pc);
+        readByte(0x0100 | sp);
+        var addr = pullWordRaw();
+        readByte(addr);
+        pc = (addr + 1) & 0xffff;
     }
 
     /* Return from Subroutine */
     function rti() {
+        readByte(pc);
+        readByte(0x0100 | sp);
         sr = pullByte() & ~flags.B;
-        pc = pullWord();
+        pc = pullWordRaw();
     }
 
     /* Set and Clear */
     function set(flag) {
+        readByte(pc);
         sr |= flag;
     }
 
     function clr(flag) {
+        readByte(pc);
         sr &= ~flag;
     }
 
     /* No-Op */
-    function nop() {
+    function nop(readAddrFn) {
+        readByte(pc);
+        readAddrFn();
     }
 
     var ops = {
@@ -822,8 +988,8 @@ export default function CPU6502(options)
 
         // AND
         0x29: ['AND', and, readImmediate, modes.immediate, 2],
-        0x25: ['AND', and, readZeroPage, modes.zeroPage, 2],
-        0x35: ['AND', and, readZeroPageX, modes.zeroPageX, 3],
+        0x25: ['AND', and, readZeroPage, modes.zeroPage, 3],
+        0x35: ['AND', and, readZeroPageX, modes.zeroPageX, 4],
         0x2D: ['AND', and, readAbsolute, modes.absolute, 4],
         0x3D: ['AND', and, readAbsoluteX, modes.absoluteX, 4],
         0x39: ['AND', and, readAbsoluteY, modes.absoluteY, 4],
@@ -832,8 +998,8 @@ export default function CPU6502(options)
 
         // ORA
         0x09: ['ORA', ora, readImmediate, modes.immediate, 2],
-        0x05: ['ORA', ora, readZeroPage, modes.zeroPage, 2],
-        0x15: ['ORA', ora, readZeroPageX, modes.zeroPageX, 3],
+        0x05: ['ORA', ora, readZeroPage, modes.zeroPage, 3],
+        0x15: ['ORA', ora, readZeroPageX, modes.zeroPageX, 4],
         0x0D: ['ORA', ora, readAbsolute, modes.absolute, 4],
         0x1D: ['ORA', ora, readAbsoluteX, modes.absoluteX, 4],
         0x19: ['ORA', ora, readAbsoluteY, modes.absoluteY, 4],
@@ -929,11 +1095,12 @@ export default function CPU6502(options)
         0x28: ['PLP', plp, null, modes.implied, 4],
 
         // JMP
-        0x4C: ['JMP', jmp,
-            readAddrAbsolute, modes.absolute, 3],
-        0x6C: ['JMP', jmp,
-            readAddrAbsoluteIndirectBug, modes.absoluteIndirect, 5],
-
+        0x4C: [
+            'JMP', jmp, readAddrAbsolute, modes.absolute, 3
+        ],
+        0x6C: [
+            'JMP', jmp, readAddrAbsoluteIndirectBug, modes.absoluteIndirect, 5
+        ],
         // JSR
         0x20: ['JSR', jsr, readAddrAbsolute, modes.absolute, 6],
 
@@ -965,7 +1132,7 @@ export default function CPU6502(options)
         0xB8: ['CLV', clr, flags.V, modes.implied, 2],
 
         // NOP
-        0xea: ['NOP', nop, null, modes.implied, 2],
+        0xea: ['NOP', nop, readImplied, modes.implied, 2],
 
         // BRK
         0x00: ['BRK', brk, readImmediate, modes.immediate, 7]
@@ -994,13 +1161,50 @@ export default function CPU6502(options)
         0x89: ['BIT', bitI, readImmediate, modes.immediate, 2],
 
         // JMP absolute indirect indexed
-        0x6C: ['JMP', jmp, readAddrAbsoluteIndirect,
-            modes.absoluteIndirect, 6],
-        0x7C: ['JMP', jmp, readAddrAbsoluteXIndirect,
-            modes.absoluteXIndirect, 6],
+        0x6C: [
+            'JMP', jmp, readAddrAbsoluteIndirect, modes.absoluteIndirect, 6
+        ],
+        0x7C: [
+            'JMP', jmp, readAddrAbsoluteXIndirect, modes.absoluteXIndirect, 6
+        ],
+
+        // BBR/BBS
+        0x0F: ['BBR0', bbr, 0, modes.zeroPage_relative, 5],
+        0x1F: ['BBR1', bbr, 1, modes.zeroPage_relative, 5],
+        0x2F: ['BBR2', bbr, 2, modes.zeroPage_relative, 5],
+        0x3F: ['BBR3', bbr, 3, modes.zeroPage_relative, 5],
+        0x4F: ['BBR4', bbr, 4, modes.zeroPage_relative, 5],
+        0x5F: ['BBR5', bbr, 5, modes.zeroPage_relative, 5],
+        0x6F: ['BBR6', bbr, 6, modes.zeroPage_relative, 5],
+        0x7F: ['BBR7', bbr, 7, modes.zeroPage_relative, 5],
+
+        0x8F: ['BBS0', bbs, 0, modes.zeroPage_relative, 5],
+        0x9F: ['BBS1', bbs, 1, modes.zeroPage_relative, 5],
+        0xAF: ['BBS2', bbs, 2, modes.zeroPage_relative, 5],
+        0xBF: ['BBS3', bbs, 3, modes.zeroPage_relative, 5],
+        0xCF: ['BBS4', bbs, 4, modes.zeroPage_relative, 5],
+        0xDF: ['BBS5', bbs, 5, modes.zeroPage_relative, 5],
+        0xEF: ['BBS6', bbs, 6, modes.zeroPage_relative, 5],
+        0xFF: ['BBS7', bbs, 7, modes.zeroPage_relative, 5],
 
         // BRA
-        0x80: ['BRA', brc, 0, modes.relative, 3],
+        0x80: ['BRA', brc, 0, modes.relative, 2],
+
+        // NOP
+        0x02: ['NOP', nop, readImmediate, modes.immediate, 2],
+        0x22: ['NOP', nop, readImmediate, modes.immediate, 2],
+        0x42: ['NOP', nop, readImmediate, modes.immediate, 2],
+        0x44: ['NOP', nop, readImmediate, modes.immediate, 3],
+        0x54: ['NOP', nop, readImmediate, modes.immediate, 4],
+        0x62: ['NOP', nop, readImmediate, modes.immediate, 2],
+        0x82: ['NOP', nop, readImmediate, modes.immediate, 2],
+        0xC2: ['NOP', nop, readImmediate, modes.immediate, 2],
+        0xD4: ['NOP', nop, readImmediate, modes.immediate, 4],
+        0xE2: ['NOP', nop, readImmediate, modes.immediate, 2],
+        0xF4: ['NOP', nop, readImmediate, modes.immediate, 4],
+        0x5C: ['NOP', nop, readAbsolute, modes.absolute, 8],
+        0xDC: ['NOP', nop, readAbsolute, modes.absolute, 4],
+        0xFC: ['NOP', nop, readAbsolute, modes.absolute, 4],
 
         // PHX
         0xDA: ['PHX', phx, null, modes.implied, 3],
@@ -1009,10 +1213,30 @@ export default function CPU6502(options)
         0x5A: ['PHY', phy, null, modes.implied, 3],
 
         // PLX
-        0xFA: ['PLX', plx, null, modes.implied, 3],
+        0xFA: ['PLX', plx, null, modes.implied, 4],
 
         // PLY
-        0x7A: ['PLY', ply, null, modes.implied, 3],
+        0x7A: ['PLY', ply, null, modes.implied, 4],
+
+        // RMB/SMB
+
+        0x07: ['RMB0', rmb, 0, modes.zeroPage, 5],
+        0x17: ['RMB1', rmb, 1, modes.zeroPage, 5],
+        0x27: ['RMB2', rmb, 2, modes.zeroPage, 5],
+        0x37: ['RMB3', rmb, 3, modes.zeroPage, 5],
+        0x47: ['RMB4', rmb, 4, modes.zeroPage, 5],
+        0x57: ['RMB5', rmb, 5, modes.zeroPage, 5],
+        0x67: ['RMB6', rmb, 6, modes.zeroPage, 5],
+        0x77: ['RMB7', rmb, 7, modes.zeroPage, 5],
+
+        0x87: ['SMB0', smb, 0, modes.zeroPage, 5],
+        0x97: ['SMB1', smb, 1, modes.zeroPage, 5],
+        0xA7: ['SMB2', smb, 2, modes.zeroPage, 5],
+        0xB7: ['SMB3', smb, 3, modes.zeroPage, 5],
+        0xC7: ['SMB4', smb, 4, modes.zeroPage, 5],
+        0xD7: ['SMB5', smb, 5, modes.zeroPage, 5],
+        0xE7: ['SMB6', smb, 6, modes.zeroPage, 5],
+        0xF7: ['SMB7', smb, 7, modes.zeroPage, 5],
 
         // STZ
         0x64: ['STZ', stz, writeZeroPage, modes.zeroPage, 3],
@@ -1031,7 +1255,9 @@ export default function CPU6502(options)
 
     if (is65C02) {
         for (var key in cops) {
-            ops[key] = cops[key];
+            if (cops.hasOwnProperty(key)) {
+                ops[key] = cops[key];
+            }
         }
     }
 
@@ -1039,15 +1265,24 @@ export default function CPU6502(options)
         var unk;
 
         if (is65C02) {
-            unk = ['NOP (' + toHex(b) + ')', function() {
-                debug('Unknown OpCode: ' + toHex(b) + ' at ' + toHex(pc - 1, 4));
-            }, null, modes.implied, 2];
+            unk = [
+                'NOP',
+                nop,
+                readImplied,
+                modes.implied,
+                2
+            ];
         } else {
-            unk = ['???',
-                function() { /* debug("Unknown OpCode: " + toHex(b) +
-                                      " at " + toHex(pc - 1, 4)); */ },
-                null, modes.implied,
-                1];
+            unk = [
+                '???',
+                function() {
+                    debug('Unknown OpCode: ' + toHex(b) +
+                          ' at ' + toHex(pc - 1, 4));
+                },
+                readImplied,
+                modes.implied,
+                1
+            ];
         }
         ops[b] = unk;
         return unk;
@@ -1061,6 +1296,8 @@ export default function CPU6502(options)
     }
 
     function dumpArgs(addr, m, symbols) {
+        var val;
+        var off;
         function toHexOrSymbol(v, n) {
             if (symbols && symbols[v]) {
                 return symbols[v];
@@ -1083,7 +1320,7 @@ export default function CPU6502(options)
             break;
         case modes.relative:
             {
-                var off = readByte(addr, true);
+                off = readByte(addr, true);
                 if (off > 127) {
                     off -= 256;
                 }
@@ -1121,6 +1358,15 @@ export default function CPU6502(options)
         case modes.absoluteXIndirect:
             result = '(' + toHexOrSymbol(readWord(addr, true), 4) + ',X)';
             break;
+        case modes.zeroPage_relative:
+            val = readByte(addr, true);
+            off = readByte(addr + 1, true);
+            if (off > 127) {
+                off -= 256;
+            }
+            addr += off + 2;
+            result = '' + toHexOrSymbol(val) + ',' + toHexOrSymbol(addr, 4) + ' (' + off + ')';
+            break;
         default:
             break;
         }
@@ -1129,25 +1375,28 @@ export default function CPU6502(options)
 
     return {
         step: function cpu_step(cb) {
+            sync = true;
             var op = opary[readBytePC()];
-
+            sync = false;
             op[1](op[2]);
-            cycles += op[4];
 
             if (cb) {
-                inCallback = true;
                 cb(this);
-                inCallback = false;
             }
         },
 
-        stepN: function(n) {
+        stepDebug: function(n, cb) {
             var op, idx;
 
             for (idx = 0; idx < n; idx++) {
+                sync = true;
                 op = opary[readBytePC()];
+                sync = false;
                 op[1](op[2]);
-                cycles += op[4];
+
+                if (cb) {
+                    cb(this);
+                }
             }
         },
 
@@ -1155,9 +1404,10 @@ export default function CPU6502(options)
             var op, end = cycles + c;
 
             while (cycles < end) {
+                sync = true;
                 op = opary[readBytePC()];
+                sync = false;
                 op[1](op[2]);
-                cycles += op[4];
             }
         },
 
@@ -1165,25 +1415,20 @@ export default function CPU6502(options)
         {
             var op, end = cycles + c;
 
-            if (inCallback)
-                return;
-
             while (cycles < end) {
+                sync = true;
                 op = opary[readBytePC()];
+                sync = false;
                 op[1](op[2]);
-                cycles += op[4];
 
                 if (cb) {
-                    inCallback = true;
                     cb(this);
-                    inCallback = false;
                 }
             }
         },
 
         addPageHandler: function(pho) {
             for (var idx = pho.start(); idx <= pho.end(); idx++) {
-                writePages[idx] = pho;
                 if (pho.read)
                     readPages[idx] = pho;
                 if (pho.write)
@@ -1208,10 +1453,10 @@ export default function CPU6502(options)
             }
         },
 
-        /* IRQ - Interupt Request */
+        /* IRQ - Interrupt Request */
         irq: function cpu_irq()
         {
-            if (!(sr & flags.I)) {
+            if ((sr & flags.I) === 0) {
                 pushWord(pc);
                 pushByte(sr & ~flags.B);
                 if (is65C02) {
@@ -1232,6 +1477,10 @@ export default function CPU6502(options)
             }
             setFlag(flags.I, true);
             pc = readWord(loc.NMI);
+        },
+
+        getPC: function () {
+            return pc;
         },
 
         setPC: function(_pc) {
@@ -1316,6 +1565,10 @@ export default function CPU6502(options)
             return results;
         },
 
+        sync: function() {
+            return sync;
+        },
+
         cycles: function() {
             return cycles;
         },
@@ -1354,14 +1607,14 @@ export default function CPU6502(options)
                 ' P=' + toHex(sr) +
                 ' S=' + toHex(sp) +
                 ' ' +
-                (sr & flags.N ? 'N' : '-') +
-                (sr & flags.V ? 'V' : '-') +
+                ((sr & flags.N) ? 'N' : '-') +
+                ((sr & flags.V) ? 'V' : '-') +
                 '-' +
-                (sr & flags.B ? 'B' : '-') +
-                (sr & flags.D ? 'D' : '-') +
-                (sr & flags.I ? 'I' : '-') +
-                (sr & flags.Z ? 'Z' : '-') +
-                (sr & flags.C ? 'C' : '-');
+                ((sr & flags.B) ? 'B' : '-') +
+                ((sr & flags.D) ? 'D' : '-') +
+                ((sr & flags.I) ? 'I' : '-') +
+                ((sr & flags.Z) ? 'Z' : '-') +
+                ((sr & flags.C) ? 'C' : '-');
         },
 
         read: function(page, off) {
