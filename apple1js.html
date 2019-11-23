@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- -*- mode: HTML; indent-tabs-mode: nil -*- -->
+<!DOCTYPE html>
 <!--
  Copyright 2010-2019 Will Scullin <scullin@scullinsteel.com>
 
@@ -25,17 +25,12 @@
 <link rel="apple-touch-icon" size="72x72" href="img/webapp-ipad.png" />
 <link rel="shortcut icon" href="logoicon.png" />
 <link rel="stylesheet" type="text/css" href="css/apple1.css" />
-<link rel="stylesheet" type="text/css"
-      href="css/custom-choc/jquery-ui-1.8.all.css" />
 
 <meta property="og:title" content="Apple 1js" />
 <meta property="og:type" content="website" />
 <meta property="og:description" content="Apple 1js is an Apple 1 emulator written using only JavaScript and HTML5." />
 <meta property="og:url" content="https://www.scullinsteel.com/apple1/" />
 <meta property="og:image" content="https://www.scullinsteel.com/apple1/img/image.png" />
-
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
 
 <!-- Tapes -->
 <script type="text/javascript">
@@ -74,26 +69,22 @@ var tapes = {};
                onkeyup="_keyup(event);">
             <canvas id="text" width="560" height="384"></canvas>
           </div>
-          <div style="color: #75d475; position: absolute">Type E000R for BASIC</div>
+          <div style="color: #75d475; position: absolute; font-size: 10px">Type E000R for BASIC</div>
         </td>
       </tr>
     </table>
     <div class="inset">
       <div id="khz" onclick="Apple1.toggleFPS()">0KHz</div>
-      <input type="button" value="Pause" onclick="Apple1.pauseRun(this)" />
-      <input type="button" value="Load" onclick="Apple1.openLoadText(event)" />
+      <button onclick="Apple1.pauseRun(this)">Pause</button>
+      <button onclick="Apple1.openLoadText(event)">Load</button>
       <div id="player">
-        <!--
-        <div id="supply"></div>
-        <div id="takeup"></div>
-        -->
         <div id="tape"></div>
       </div>
       <div style="float: right">
-        <input type="button" onclick="window.open('about.html','_html')"
-               name="About" value="About">
-        <input type="button" onclick="$('#options').dialog('open')"
-               name="Options" value="Options">
+        <button onclick="window.open('about.html','_html')"
+                name="About">About</button>
+        <button type="button" onclick="Apple1.openOptions()"
+                name="Options">Options</button>
       </div>
     </div>
     <div class="inset">
@@ -102,59 +93,113 @@ var tapes = {};
       </div>
     </div>
   </div>
-  <div id="options" title="Options" style="display: none">
-    <h3>CPU</h3>
-    <ul>
-      <li>
-        <input type="checkbox" checked="checked" id="speed_toggle"
-               onclick="Apple1.toggleSpeed()"/>
-        <label for="speed_toggle">
-          Regulate Speed
-        </label>
-      </li>
-    </ul>
-    <h3>Monitor</h3>
-    <ul>
-      <li>
-        <input type="checkbox" id="green_screen"
-               onclick="Apple1.updateScreen()" />
-        <label for="green_screen">
-          Green Screen
-        </label>
-      </li>
-      <li>
-        <input type="checkbox" id="show_scanlines"
-               onclick="Apple1.updateScreen()" />
-        <label for="show_scanlines">
-          Show Scanlines
-        </label>
-      </li>
-    </ul>
-    <h3>I/O</h3>
-    <ul>
-      <li>
-        <input type="checkbox" id="turbo_tape"
-               onclick="Apple1.setTurboTape(this.checked)" />
-        <label for="turbo_tape">
-          Turbo Tape Loading
-        </label>
-      </li>
-    </ul>
+  <div class="modal" id="options-modal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="Options">
+        <header class="modal__header">
+          <span class="modal__title" id="options-modal-title">
+            Options
+          </span>
+          <button class="modal__close" aria-label="Close modal" data-micromodal-close>
+          </button>
+        </header>
+        <main class="modal__content" id="options-modal-content">
+          <h3>CPU</h3>
+          <ul>
+            <li>
+              <input type="checkbox" checked="checked" id="speed_toggle"
+                    onclick="Apple1.toggleSpeed()"/>
+              <label for="speed_toggle">
+                Regulate Speed
+              </label>
+            </li>
+            </ul>
+            <h3>Monitor</h3>
+            <ul>
+            <li>
+              <input type="checkbox" id="green_screen"
+                    onclick="Apple1.updateScreen()" />
+                <label for="green_screen">
+                  Green Screen
+                </label>
+            </li>
+            <li>
+              <input type="checkbox" id="show_scanlines"
+                    onclick="Apple1.updateScreen()" />
+              <label for="show_scanlines">
+                Show Scanlines
+              </label>
+            </li>
+          </ul>
+          <h3>I/O</h3>
+          <ul>
+            <li>
+                <input type="checkbox" id="turbo_tape"
+                    onclick="Apple1.setTurboTape(this.checked)" />
+                <label for="turbo_tape">
+                Turbo Tape Loading
+                </label>
+            </li>
+          </ul>
+        </main>
+        <footer class="modal__footer">
+          <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+        </footer>
+      </div>
+    </div>
   </div>
-  <div id="input_text" title="Input Text" style="display: none">
-    <form action="#">
-      <select id="tape_select">
-        <option>Or Select Tape...</option>
-      </select>
-      <input type="button" onclick="$('#text_input').val('')"
-             name="Clear" value="Clear" />
-      <textarea id="text_input" rows="24" cols="80"></textarea>
-    </form>
+
+  <div class="modal" id="input-modal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="Input Text">
+        <header class="modal__header">
+          <span class="modal__title" id="input-modal-title">
+            Input Text
+          </span>
+          <button class="modal__close" aria-label="Close modal" data-micromodal-close>
+          </button>
+        </header>
+        <main class="modal__content" id="input-modal-content">
+          <form action="#">
+            <div class="controls">
+              <select id="tape_select">
+                <option>Or Select Tape...</option>
+              </select>
+              <button onclick="document.querySelector('#text_input').value = ''"
+                    name="Clear">Clear</button>
+              </div>
+            <textarea id="text_input" rows="24" cols="80"></textarea>
+          </form>
+        </main>
+        <footer class="modal__footer">
+            <button class="modal__btn" aria-label="Send text to the keyboard" onclick="Apple1.doLoadText()">OK</button>
+            <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+        </footer>
+      </div>
+    </div>
   </div>
-  <div id="local" title="Load Local File" style="display: none">
-    <form action="#">
-      <input type="file" id="local_file" />
-    </form>
+
+  <div class="modal" id="local-modal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="Load Local File">
+        <header class="modal__header">
+          <span class="modal__title" id="local-modal-title">
+              Load Local File
+          </span>
+          <button class="modal__close" aria-label="Close modal" data-micromodal-close>
+          </button>
+        </header>
+        <main class="modal__content" id="input-modal-content">
+          <form action="#">
+            <input type="file" id="local_file" />
+          </form>
+        </main>
+        <footer class="modal__footer">
+            <button class="modal__btn" aria-label="Load local file" onclick="Apple1.doLoadLocal()">OK</button>
+            <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+        </footer>
+      </div>
+    </div>
   </div>
   <script type="text/javascript" src="dist/apple1.js"></script>
 </body>

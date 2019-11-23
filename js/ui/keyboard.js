@@ -1,4 +1,4 @@
-/* Copyright 2010-2019 Will Scullin <scullin@scullinsteel.com>
+/* Copyright 2010-2019 Will Scullin <scullin@scullinstekb.com>
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -145,7 +145,7 @@ export function mapKeyEvent(evt) {
     return 0xFF;
 }
 
-export function KeyBoard(cpu, io, text) {
+export function KeyBoard(id, cpu, io, text) {
     var keys =
         [[['1','2','3','4','5','6','7','8','9','0',':','-','RESET'],
             ['ESC','Q','W','E','R','T','Y','U','I','O','P','FEED','RETURN'],
@@ -160,45 +160,50 @@ export function KeyBoard(cpu, io, text) {
 
     var shifted = false;
     var controlled = false;
+    var kb = document.querySelector(id);
 
     return {
         shiftKey: function keyboard_shiftKey(down) {
             shifted = down;
-            if (down) {
-                $('#keyboard .key-SHIFT').addClass('active');
-            } else {
-                $('#keyboard .key-SHIFT').removeClass('active');
-            }
+            kb.querySelectorAll('.key-SHIFT').forEach(function(el) {
+                if (down) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
         },
 
         controlKey: function keyboard_controlKey(down) {
             controlled = down;
-            if (down) {
-                $('#keyboard .key-CTRL').addClass('active');
-            } else {
-                $('#keyboard .key-CTRL').removeClass('active');
-            }
+            kb.querySelectorAll('.key-CTRL').forEach(function(el) {
+                if (down) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
         },
 
-        create: function keyboard_create(kb) {
+        create: function keyboard_create() {
             var x, y, row, key, key1, key2, label, label1, label2;
 
-            kb.disableSelection();
-
             function buildLabel(k) {
-                var span = $('<span>' + k + '</span>');
-                if (k.length > 1 && k.substr(0,1) != '&')
-                    span.addClass('small');
+                var span = document.createElement('span');
+                span.innerHTML = k;
+                if (k.length > 1 && k.substr(0,1) != '&') {
+                    span.classList.add('small');
+                }
                 return span;
             }
 
-            function _mouseup() {
-                $(this).removeClass('pressed');
+            function _mouseup(event) {
+                event.currentTarget.classList.remove('pressed');
             }
 
-            function _mousedown(ev) {
-                $(this).addClass('pressed');
-                var key = $(ev.currentTarget).data(shifted ? 'key2' : 'key1');
+            function _mousedown(event) {
+                event.currentTarget.classList.add('pressed');
+                var key = event.currentTarget.dataSet[shifted ? 'key2' : 'key1'];
                 switch (key) {
                 case 'BELL':
                     key = 'G';
@@ -228,11 +233,15 @@ export function KeyBoard(cpu, io, text) {
                     switch (key) {
                     case 'SHIFT':
                         shifted = !shifted;
-                        $('#keyboard .key-SHIFT').toggleClass('active');
+                        kb.querySelectorAll('.key-SHIFT').forEach(function(el) {
+                            el.classList.toggle('active');
+                        });
                         break;
                     case 'CTRL':
                         controlled = !controlled;
-                        $('#keyboard .key-CTRL').toggleClass('active');
+                        kb.querySelectorAll('.key-CTRL').forEach(function(el) {
+                            el.classList.toggle('active');
+                        });
                         break;
                     case 'RESET':
                         cpu.reset();
@@ -253,42 +262,45 @@ export function KeyBoard(cpu, io, text) {
             }
 
             for (y = 0; y < 5; y++) {
-                row = $('<div class=\'row row' + y + '\'/>');
+                row = document.createElement('div');
+                row.classList.add('row', 'row' + y);
                 kb.append(row);
                 for (x = 0; x < keys[0][y].length; x++) {
                     key1 = keys[0][y][x];
                     key2 = keys[1][y][x];
 
-                    label = $('<div />');
+                    label = document.createElement('div');
                     label1 = buildLabel(key1);
                     label2 = buildLabel(key2);
 
-                    key = $('<div class=\'key\'>');
-                    key.addClass('key-' + key1.replace(/[&;]/g,''));
+                    key = document.createElement('div');
+                    key.classList.add('key', 'key-' + key1.replace(/[&;]/g,''));
 
                     if (key1.length > 1) {
                         if (key1 != key2) {
-                            key.addClass('vcenter2');
+                            key.classList.add('vcenter2');
                         } else {
-                            key.addClass('vcenter');
+                            key.classList.add('vcenter');
                         }
                     }
 
                     if (key1 != key2) {
-                        key.addClass('key-' + key2.replace(/[&;]/g,''));
+                        key.classList.add('key-' + key2.replace(/[&;]/g,''));
                         label.append(label2);
-                        label.append('<br/>');
+                        label.append(document.createElement('br'));
                     }
                     label.append(label1);
                     key.append(label);
-                    key.data({'key1': key1, 'key2': key2});
+                    key.dataSet = {'key1': key1, 'key2': key2};
 
                     if (window.ontouchstart === undefined) {
-                        key.bind('mousedown', _mousedown);
-                        key.bind('mouseup mouseout', _mouseup);
+                        key.addEventListener('mousedown', _mousedown);
+                        key.addEventListener('mouseup', _mouseup);
+                        key.addEventListener('mouseout', _mouseup);
                     } else {
-                        key.bind('touchstart', _mousedown);
-                        key.bind('touchend touchleave', _mouseup);
+                        key.addEventListener('touchstart', _mousedown);
+                        key.addEventListener('touchend', _mouseup);
+                        key.addEventListener('touchleave', _mouseup);
                     }
 
                     row.append(key);
