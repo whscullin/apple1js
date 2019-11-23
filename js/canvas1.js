@@ -43,7 +43,7 @@ export function TextPage()
         for (var row = 0; row < 24; row++) {
             _buffer[row] = [];
             for (var col = 0; col < 40; col++) {
-                _buffer[row][col] = 0x00;
+                _buffer[row][col] = col % 2 ? 0x00 : 0xff;
             }
         }
         _dirty = true;
@@ -83,16 +83,11 @@ export function TextPage()
                 _col = 0;
                 _row++;
             } else {
-                if (val >= 0x20) {
-                    if (val >= 0x60) {
-                        val &= 0x5f;
-                    }
-                    _buffer[_row][_col] = val;
-                    _col++;
-                    if (_col > 39) {
-                        _col = 0;
-                        _row++;
-                    }
+                _buffer[_row][_col] = val;
+                _col++;
+                if (_col > 39) {
+                    _col = 0;
+                    _row++;
                 }
             }
             if (_row > 23) {
@@ -113,11 +108,19 @@ export function TextPage()
 
             fore = _greenMode ? _green : _white;
             back = _black;
-            if (!val && !_blinking) {
-                fore = _black;
+            var char = 0;
+
+            if (!val) {
+                if (_blinking) {
+                    fore = _black;
+                }
+            } else {
+                char = val & 0x1f;
+                char |= val & 0x40 ? 0 : 0x20;
             }
+
             for (var jdx = 0; jdx < 8; jdx++) {
-                var b = charset[(val & 0x3f) * 8 + jdx];
+                var b = charset[char * 8 + jdx];
                 for (var idx = 0; idx < 7; idx += 1) {
                     b <<= 1;
                     color = (b & 0x80) ? fore : back;
