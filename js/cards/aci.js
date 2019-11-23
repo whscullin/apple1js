@@ -79,45 +79,47 @@ export default function ACI(cpu, cb) {
                     }
                 }
             } else {
-                switch (off) {
-                case 0x00:
-                    _recording = false;
-                    _beKind = true;
-                    debug('Entering ACI CLI');
-                    break;
-                case 0x63:
-                    if (_recording) {
-                        this.buffer.push(5000000);
+                if (cpu.sync()) {
+                    switch (off) {
+                    case 0x00:
                         _recording = false;
-                    }
-                    debug('Exiting ACI CLI');
-                    break;
-                case 0x70: // WRITE
-                    _recording = true;
-                    if (_beKind) {
-                        _beKind = false;
-                        this.buffer = [];
-                    }
-                    debug('Start write');
-                    _last = now;
-                    break;
-                //case 0x7c: // WBITLOOP:
-                    // _debug = true;
-                    // debug("Write bit loop");
-                    // break;
-                case 0x8d: // READ
-                    _recording = false;
-                    debug('Start read');
-                    if (_beKind) {
-                        _readOffset = 0;
-                        _next = now + 5000000;
-                        _beKind = false;
+                        _beKind = true;
+                        debug('Entering ACI CLI');
+                        break;
+                    case 0x63:
+                        if (_recording) {
+                            this.buffer.push(5000000);
+                            _recording = false;
+                        }
+                        debug('Exiting ACI CLI');
+                        break;
+                    case 0x70: // WRITE
+                        _recording = true;
+                        if (_beKind) {
+                            _beKind = false;
+                            this.buffer = [];
+                        }
+                        debug('Start write');
+                        _last = now;
+                        break;
+                    //case 0x7c: // WBITLOOP:
+                        // _debug = true;
+                        // debug("Write bit loop");
+                        // break;
+                    case 0x8d: // READ
+                        _recording = false;
+                        debug('Start read');
+                        if (_beKind) {
+                            _readOffset = 0;
+                            _next = now + 5000000;
+                            _beKind = false;
 
-                        cb.progress(0);
+                            cb.progress(0);
+                        }
+                        break;
+                    default:
+                        break;
                     }
-                    break;
-                default:
-                    break;
                 }
             }
             return result;
