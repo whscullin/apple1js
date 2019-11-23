@@ -389,7 +389,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.checked = JSON.parse(val);
         });
         document.querySelectorAll('input[type=checkbox]').forEach(function(el) {
-            prefs.writePref(el.id, JSON.stringify(el.checked));
+            el.addEventListener('change', function() {
+                prefs.writePref(el.id, JSON.stringify(el.checked));
+            });
         });
     }
 
@@ -438,12 +440,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             document.querySelector('#text_input').value = script;
-            document.querySelector('#tape').css('width', 100);
         } else {
             aci.setData(tape.tracks);
             document.querySelector('#text_input').value = tape.script;
-            doLoadText();
         }
+        doLoadText();
     }
     document.querySelector('#tape_select').addEventListener('change', doTapeSelect);
 
