@@ -75,7 +75,7 @@ aci.setData(window.tapes['Microchess'].tracks);
 // Audio Buffer Source
 var context;
 if (typeof window.webkitAudioContext !== 'undefined') {
-    context = window.webkitAudioContext;
+    context = window.webkitAudioContext();
 } else if (typeof window.AudioContext !== 'undefined') {
     context = new window.AudioContext();
 }
