@@ -58,7 +58,9 @@ var tapes = {};
 
 <!-- Web FE -->
 </head>
-<body>
+<body ondragover="Apple1.handleDragOver(event)"
+      ondrop="Apple1.handleDrop(event)"
+      ondragend="Apple1.handleDragEnd(event)">
   <div style="margin: auto; width: 604px">
     <h1 style="font-size: 24px" class="motter">Apple 1js</h1>
     <h2 id="subtitle">An Apple 1 Emulator in JavaScript</h2>

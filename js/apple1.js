@@ -80,9 +80,9 @@ if (typeof window.webkitAudioContext !== 'undefined') {
     context = new window.AudioContext();
 }
 
-export function doLoadLocal() {
+export function doLoadLocal(files) {
     context.resume();
-    var files = document.querySelector('#local_file').files;
+    files = files || document.querySelector('#local_file').files;
     if (files.length == 1) {
         var file = files[0];
         var fileReader = new FileReader();
@@ -106,8 +106,8 @@ export function doLoadLocal() {
                     aci.buffer = buf;
                     MicroModal.close('local-modal');
                 },
-                function(error) {
-                    window.alert(error.message);
+                function() {
+                    window.alert('Unable to read tape file: ' + file.name);
                 }
             );
         };
@@ -350,6 +350,32 @@ export function doLoadText() {
         io.paste(text);
     }
     MicroModal.close('input-modal');
+}
+
+export function handleDragOver(event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+}
+
+export function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    var dt = event.dataTransfer;
+    if (dt.files.length > 0) {
+        doLoadLocal(dt.files);
+    }
+}
+
+export function handleDragEnd(event) {
+    var dt = event.dataTransfer;
+    if (dt.items) {
+        for (var i = 0; i < dt.items.length; i++) {
+            dt.items.remove(i);
+        }
+    } else {
+        event.dataTransfer.clearData();
+    }
 }
 
 MicroModal.init();
