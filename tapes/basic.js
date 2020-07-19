@@ -1,5 +1,3 @@
-/*globals tapes: true */
-
 tapes['BASIC'] = {
     script: 'C100R\nE000.EFFFR\nE000R\n',
     tracks: [[

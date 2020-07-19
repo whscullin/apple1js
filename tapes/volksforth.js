@@ -1,5 +1,3 @@
-/*globals tapes: true */
-
 tapes['Volksforth'] = {
     script: 'C100R\n1000.449FR\n1000R\n',
     tracks: [[

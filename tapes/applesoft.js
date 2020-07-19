@@ -1,5 +1,3 @@
-/*globals tapes: true */
-
 tapes['Applesoft'] = {
     script: 'C100R\n6000.7ECDR\n6000R\n',
     tracks: [[

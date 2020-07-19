@@ -1,5 +1,3 @@
-/*globals tapes: true */
-
 tapes['Codebreaker'] = {
     script: 'C100R\n0280.0BFFR E000.EFFFR\n280R\n',
     tracks: [[

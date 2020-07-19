@@ -5,8 +5,6 @@ E2B3R
 RUN
 */
 
-/*globals tapes: true */
-
 tapes['Wumpus'] = {
     script: 'C100R\n004A.00FFR 0300.033FR 0400.3FFFR\nE2B3R\nRUN\n',
     tracks: [[ // 004A.00FF

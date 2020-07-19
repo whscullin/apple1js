@@ -4,8 +4,6 @@ C100R
 300R
 */
 
-/*globals tapes: true */
-
 tapes['Lunar Lander'] = {
     script: 'C100R\n0300.09B8R\n300R\n',
     tracks: [[ // 0300.09B8

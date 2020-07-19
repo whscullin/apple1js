@@ -22,6 +22,9 @@
         "browser": true,
         "es6": true
     },
+    "globals": {
+        "tapes": true
+    },
     "parserOptions": {
         "sourceType": "module"
     },

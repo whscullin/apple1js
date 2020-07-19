@@ -13,8 +13,6 @@ C100R
 300R
 */
 
-/*globals tapes: true */
-
 tapes['Little Tower'] = {
     script: 'C100R\n0300.14CDR\n300R\n',
     tracks: [[ // 0300.14CD

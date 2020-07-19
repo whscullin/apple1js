@@ -2,8 +2,6 @@
 // Who said that there was no graphics capability on the Apple 1?
 // http://www.applefritter.com/node/24600#comment-60100
 
-/*globals tapes: true */
-
 /*
 C100R
 0280.0FFFR

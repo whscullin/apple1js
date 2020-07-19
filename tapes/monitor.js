@@ -4,8 +4,6 @@ C100R
 F3DR
 */
 
-/*globals tapes: true */
-
 tapes['Monitor/Disassembler'] = {
     script: 'C100R\n0800.0FFFR\nF3DR\n',
     tracks: [[ // 0800.0FFF

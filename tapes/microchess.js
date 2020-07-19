@@ -4,8 +4,6 @@ C100R
 300R
 */
 
-/*globals tapes: true */
-
 tapes['Microchess'] = {
     script: 'C100R\n0300.0BC7R\n300R\n',
     tracks: [[ // 0300.0BC7

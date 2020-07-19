@@ -10,8 +10,6 @@ C100R
 2000R
 */
 
-/*globals tapes: true */
-
 tapes['Life'] = {
     script: 'C100R\n2000.21B7R\n2000R\n',
     tracks: [[ // 2000.3FFFR

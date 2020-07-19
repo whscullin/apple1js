@@ -25,8 +25,6 @@
  *
  */
 
-/*globals tapes: true */
-
 tapes['15 Puzzle'] = {
     script: 'C100R\n0300.06E5R\n0300R\n',
     tracks: [[
