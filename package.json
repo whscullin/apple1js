@@ -29,12 +29,12 @@
     "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
     "ajv": "^6.9.2",
-    "babel-jest": "^24.5.0",
+    "babel-jest": "^26.3.0",
     "eslint": "^5.16.0",
-    "jest": "^24.8.0",
+    "jest": "^26.4.2",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.2.1"
+    "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
     "micromodal": "^0.3.2"
