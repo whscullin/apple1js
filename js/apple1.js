@@ -153,7 +153,7 @@ export function toggleSpeed()
 }
 
 export function setKeyBuffer(text) {
-    io.setKeyBuffer(text);
+    io.paste(text);
 }
 
 export function setTurboTape(val) {
@@ -394,6 +394,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('keydown', _keydown);
     window.addEventListener('keyup', _keyup);
+
+    window.addEventListener('paste', (event) => {
+        var paste = (event.clipboardData || window.clipboardData).getData('text');
+        setKeyBuffer(paste);
+        event.preventDefault();
+    });
+
+    window.addEventListener('copy', (event) => {
+        event.clipboardData.setData('text/plain', text.getText());
+        event.preventDefault();
+    });
 
     document.querySelector('.overscan').addEventListener('paste', function(event) {
         io.paste(event.originalEvent.clipboardData().getData('text/plain'));

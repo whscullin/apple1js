@@ -181,6 +181,31 @@ export function TextPage()
                 _page.data[idx] = 0xff;
             }
         },
+        getText: function() {
+            function mapCharCode(charCode) {
+                charCode &= 0x7F;
+                if (charCode < 0x20) {
+                    charCode += 0x40;
+                }
+                if (charCode >= 0x60) {
+                    charCode -= 0x40;
+                }
+                return charCode;
+            }
+
+            var buffer = '', line, charCode;
+            var row, col;
+            for (row = 0; row < 24; row++) {
+                line = '';
+                for (col = 0; col < 40; col++) {
+                    charCode = mapCharCode(_buffer[row][col]);
+                    line += String.fromCharCode(charCode);
+                }
+                line = line.trimRight();
+                buffer +=  line + '\n';
+            }
+            return buffer;
+        },
         clear: function canvas_clearScreen() {
             for (var row = 0; row < 24; row++) {
                 for (var col = 0; col < 40; col++) {
