@@ -1255,9 +1255,7 @@ export default function CPU6502(options)
 
     if (is65C02) {
         for (var key in cops) {
-            if (cops.hasOwnProperty(key)) {
-                ops[key] = cops[key];
-            }
+            ops[key] = cops[key];
         }
     }
 
