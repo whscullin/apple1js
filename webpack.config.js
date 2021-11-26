@@ -2,6 +2,7 @@ const path = require('path');
 
 module.exports =
 {
+    mode: 'development',
     devtool: 'source-map',
     entry: {
         apple1: path.resolve('js/entry1.js')
@@ -14,10 +15,14 @@ module.exports =
     },
     devServer: {
         compress: true,
-        publicPath: '/dist/',
-        watchContentBase: true,
-        watchOptions: {
-            ignored: /node_modules/
-        }
-    }
+        static: {
+            watch: {
+                ignored: /(node_modules|test|\.git)/
+            },
+            directory: __dirname,
+        },
+        devMiddleware: {
+            publicPath: '/dist/',
+        },
+    },
 };

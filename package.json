@@ -33,11 +33,11 @@
     "eslint": "^5.16.0",
     "jest": "^26.4.2",
     "node-forge": "^0.10.0",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.11.0"
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0"
   },
   "dependencies": {
-    "micromodal": "^0.3.2"
+    "micromodal": "^0.4.2"
   }
 }
