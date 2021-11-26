@@ -38,6 +38,6 @@
     "webpack-dev-server": "^4.6.0"
   },
   "dependencies": {
-    "micromodal": "^0.4.2"
+    "micromodal": "^0.4.9"
   }
 }
