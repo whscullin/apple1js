@@ -13,6 +13,25 @@ module.exports =
         libraryExport: 'Apple1',
         libraryTarget: 'var'
     },
+    module: {
+        rules: [
+            {
+                test: /\.ts$/i,
+                use: [
+                    {
+                        loader: 'ts-loader'
+                    },
+                ],
+                exclude: /node_modules/,
+            }
+        ]
+    },
+    resolve: {
+        extensions: ['.ts',  '.js'],
+        alias: {
+            js: path.resolve(__dirname, 'js/')
+        }
+    },
     devServer: {
         compress: true,
         static: {
