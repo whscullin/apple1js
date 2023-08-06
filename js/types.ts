@@ -14,3 +14,5 @@ export type byte = number;
 export type word = number;
 
 export type address = word;
+
+export type memory = Uint8Array | byte[];
