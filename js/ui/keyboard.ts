@@ -214,19 +214,17 @@ export class KeyBoard {
       return span;
     }
 
-    const _mouseup = (
-      event: MouseEvent & {
-        currentTarget: HTMLElement;
+    const _mouseup = (event: Event) => {
+      if (!(event.currentTarget instanceof HTMLElement)) {
+        return;
       }
-    ) => {
       event.currentTarget.classList.remove('pressed');
     };
 
-    const _mousedown = (
-      event: MouseEvent & {
-        currentTarget: HTMLElement;
+    const _mousedown = (event: Event) => {
+      if (!(event.currentTarget instanceof HTMLElement)) {
+        return;
       }
-    ) => {
       event.currentTarget.classList.add('pressed');
       let key = event.currentTarget.dataset[this.shifted ? 'key2' : 'key1'];
       if (!key) {
@@ -262,7 +260,7 @@ export class KeyBoard {
           case 'SHIFT':
             this.shifted = !this.shifted;
             this.kb
-              .querySelectorAll('.key-SHIFT')
+              .querySelectorAll<HTMLElement>('.key-SHIFT')
               .forEach(function (el: HTMLElement) {
                 el.classList.toggle('active');
               });

@@ -22,8 +22,8 @@ import type { byte } from './types';
  */
 
 export class TextPage {
-  _page: ImageData;
-  _context: CanvasRenderingContext2D;
+  _page: ImageData | undefined;
+  _context: CanvasRenderingContext2D | undefined;
 
   _buffer: byte[][] = [];
   _greenMode = false;
@@ -98,6 +98,9 @@ export class TextPage {
     this.refresh();
   }
   writeAt(row: byte, col: byte, val: byte): void {
+    if (!this._page) {
+      return;
+    }
     this._buffer[row][col] = val;
     const data = this._page.data;
     let color;
@@ -169,6 +172,9 @@ export class TextPage {
     this.refresh();
   }
   blit() {
+    if (!this._page || !this._context) {
+      return;
+    }
     if (this._dirty) {
       this._context.putImageData(
         this._page,
