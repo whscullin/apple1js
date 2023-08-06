@@ -9,8 +9,8 @@
  * implied warranty.
  */
 
-import { TextPage } from "./canvas1";
-import type { byte } from "./types";
+import { TextPage } from './canvas1';
+import type { byte } from './types';
 
 const LOC = {
   KBD: 0x10,
@@ -36,20 +36,22 @@ export default class Apple1IO {
     return 0xd0;
   }
   read(_page: byte, off: byte): byte {
-    var result = 0;
+    let result = 0;
     off &= 0x13;
     switch (off) {
       case LOC.KBD:
-        // Keyboard
-        const key = this._buffer.shift();
-        if (key != null) {
-          result = key.toUpperCase().charCodeAt(0) & 0x7f;
-          this._keyReady = this._buffer.length > 0;
-        } else {
-          result = this._key;
-          this._keyReady = false;
+        {
+          // Keyboard
+          const key = this._buffer.shift();
+          if (key != null) {
+            result = key.toUpperCase().charCodeAt(0) & 0x7f;
+            this._keyReady = this._buffer.length > 0;
+          } else {
+            result = this._key;
+            this._keyReady = false;
+          }
+          result |= 0x80;
         }
-        result |= 0x80;
         break;
       case LOC.KBDRDY:
         result = this._keyReady ? 0x80 : 0x00;
@@ -96,9 +98,9 @@ export default class Apple1IO {
     this._keyReady = true;
   }
   paste(buffer: string) {
-    buffer = buffer.replace(/\/\/.*\n/g, "");
-    buffer = buffer.replace(/\n/g, "\r");
-    this._buffer = buffer.split("");
+    buffer = buffer.replace(/\/\/.*\n/g, '');
+    buffer = buffer.replace(/\n/g, '\r');
+    this._buffer = buffer.split('');
     this._keyReady = true;
   }
 }

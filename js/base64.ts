@@ -1,6 +1,6 @@
-import { memory } from "./types";
+import { memory } from './types';
 
-const B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 /** Encode an array of bytes in base64. */
 export function base64_encode(data: null | undefined): undefined;
@@ -37,7 +37,7 @@ export function base64_encode(
     bits,
     i = 0,
     ac = 0,
-    enc = "";
+    enc = '';
   const tmp_arr = [];
 
   if (!data) {
@@ -62,14 +62,14 @@ export function base64_encode(
       B64.charAt(h1) + B64.charAt(h2) + B64.charAt(h3) + B64.charAt(h4);
   } while (i < data.length);
 
-  enc = tmp_arr.join("");
+  enc = tmp_arr.join('');
 
   switch (data.length % 3) {
     case 1:
-      enc = enc.slice(0, -2) + "==";
+      enc = enc.slice(0, -2) + '==';
       break;
     case 2:
-      enc = enc.slice(0, -1) + "=";
+      enc = enc.slice(0, -1) + '=';
       break;
   }
 
@@ -147,11 +147,11 @@ export function base64_decode(
   return new Uint8Array(tmp_arr);
 }
 
-const DATA_URL_PREFIX = "data:application/octet-stream;base64,";
+const DATA_URL_PREFIX = 'data:application/octet-stream;base64,';
 
 export function base64_json_parse(json: string): unknown {
   const reviver = (_key: string, value: unknown) => {
-    if (typeof value === "string" && value.startsWith(DATA_URL_PREFIX)) {
+    if (typeof value === 'string' && value.startsWith(DATA_URL_PREFIX)) {
       return base64_decode(value.slice(DATA_URL_PREFIX.length));
     }
     return value;

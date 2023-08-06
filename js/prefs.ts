@@ -11,7 +11,7 @@
 
 export default class Prefs {
   havePrefs() {
-    return typeof localStorage !== "undefined";
+    return typeof localStorage !== 'undefined';
   }
   readPref(name: string) {
     if (localStorage) return localStorage.getItem(name);

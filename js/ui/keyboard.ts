@@ -9,11 +9,11 @@
  * implied warranty.
  */
 
-import CPU6502 from "js/cpu6502";
-import { debug, toHex } from "../util";
-import Apple1IO from "js/apple1io";
-import { TextPage } from "js/canvas1";
-import { byte } from "js/types";
+import CPU6502 from 'js/cpu6502';
+import { debug, toHex } from '../util';
+import Apple1IO from 'js/apple1io';
+import { TextPage } from 'js/canvas1';
+import { byte } from 'js/types';
 
 // keycode: [plain, cntl, shift]
 
@@ -140,29 +140,29 @@ const keymap: Record<byte, readonly byte[]> = {
 
 const keys = [
   [
-    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ":", "-", "RESET"],
-    ["ESC", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "FEED", "RETURN"],
-    ["CTRL", "A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "OUT", "CLS"],
-    ["SHIFT", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "SHIFT"],
-    ["&nbsp;"],
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ':', '-', 'RESET'],
+    ['ESC', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'FEED', 'RETURN'],
+    ['CTRL', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', 'OUT', 'CLS'],
+    ['SHIFT', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 'SHIFT'],
+    ['&nbsp;'],
   ],
   [
-    ["!", '"', "#", "$", "%", "&", "'", "(", ")", "0", "*", "=", "RESET"],
-    ["ESC", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "@", "LINE", "RETURN"],
-    ["CTRL", "A", "S", "D", "F", "BELL", "H", "J", "K", "L", "+", "RUB", "CLS"],
-    ["SHIFT", "Z", "X", "C", "V", "B", "^", "M", "<", ">", "?", "SHIFT"],
-    ["&nbsp;"],
+    ['!', '"', '#', '$', '%', '&', "'", '(', ')', '0', '*', '=', 'RESET'],
+    ['ESC', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', '@', 'LINE', 'RETURN'],
+    ['CTRL', 'A', 'S', 'D', 'F', 'BELL', 'H', 'J', 'K', 'L', '+', 'RUB', 'CLS'],
+    ['SHIFT', 'Z', 'X', 'C', 'V', 'B', '^', 'M', '<', '>', '?', 'SHIFT'],
+    ['&nbsp;'],
   ],
 ] as const;
 
 export function mapKeyEvent(evt: KeyboardEvent) {
-  var code = evt.keyCode;
+  const code = evt.keyCode;
 
   if (code in keymap) {
     return keymap[code][evt.shiftKey ? 2 : evt.ctrlKey ? 1 : 0];
   }
 
-  debug("Unhandled key = " + toHex(code));
+  debug('Unhandled key = ' + toHex(code));
   return 0xff;
 }
 
@@ -182,34 +182,34 @@ export class KeyBoard {
 
   shiftKey(down: boolean) {
     this.shifted = down;
-    this.kb.querySelectorAll(".key-SHIFT").forEach(function (el) {
+    this.kb.querySelectorAll('.key-SHIFT').forEach(function (el) {
       if (down) {
-        el.classList.add("active");
+        el.classList.add('active');
       } else {
-        el.classList.remove("active");
+        el.classList.remove('active');
       }
     });
   }
 
   controlKey(down: boolean) {
     this.controlled = down;
-    this.kb.querySelectorAll(".key-CTRL").forEach(function (el) {
+    this.kb.querySelectorAll('.key-CTRL').forEach(function (el) {
       if (down) {
-        el.classList.add("active");
+        el.classList.add('active');
       } else {
-        el.classList.remove("active");
+        el.classList.remove('active');
       }
     });
   }
 
   create() {
-    var x, y, row, key, key1, key2, label, label1, label2;
+    let x, y, row, key, key1, key2, label, label1, label2;
 
     function buildLabel(k: string) {
-      var span = document.createElement("span");
+      const span = document.createElement('span');
       span.innerHTML = k;
-      if (k.length > 1 && !k.startsWith("&")) {
-        span.classList.add("small");
+      if (k.length > 1 && !k.startsWith('&')) {
+        span.classList.add('small');
       }
       return span;
     }
@@ -219,7 +219,7 @@ export class KeyBoard {
         currentTarget: HTMLElement;
       }
     ) => {
-      event.currentTarget.classList.remove("pressed");
+      event.currentTarget.classList.remove('pressed');
     };
 
     const _mousedown = (
@@ -227,31 +227,31 @@ export class KeyBoard {
         currentTarget: HTMLElement;
       }
     ) => {
-      event.currentTarget.classList.add("pressed");
-      var key = event.currentTarget.dataset[this.shifted ? "key2" : "key1"];
+      event.currentTarget.classList.add('pressed');
+      let key = event.currentTarget.dataset[this.shifted ? 'key2' : 'key1'];
       if (!key) {
         return;
       }
       switch (key) {
-        case "BELL":
-          key = "G";
+        case 'BELL':
+          key = 'G';
           break;
-        case "RETURN":
-          key = "\r";
+        case 'RETURN':
+          key = '\r';
           break;
-        case "LINE":
-        case "FEED":
-          key = "\n";
+        case 'LINE':
+        case 'FEED':
+          key = '\n';
           break;
-        case "RUB":
-        case "OUT":
-          key = "_"; // 0x5f
+        case 'RUB':
+        case 'OUT':
+          key = '_'; // 0x5f
           break;
-        case "&nbsp;":
-          key = " ";
+        case '&nbsp;':
+          key = ' ';
           break;
-        case "ESC":
-          key = "\0x1b";
+        case 'ESC':
+          key = '\0x1b';
           break;
         default:
           break;
@@ -259,31 +259,31 @@ export class KeyBoard {
 
       if (key.length > 1) {
         switch (key) {
-          case "SHIFT":
+          case 'SHIFT':
             this.shifted = !this.shifted;
             this.kb
-              .querySelectorAll(".key-SHIFT")
+              .querySelectorAll('.key-SHIFT')
               .forEach(function (el: HTMLElement) {
-                el.classList.toggle("active");
+                el.classList.toggle('active');
               });
             break;
-          case "CTRL":
+          case 'CTRL':
             this.controlled = !this.controlled;
-            this.kb.querySelectorAll(".key-CTRL").forEach(function (el) {
-              el.classList.toggle("active");
+            this.kb.querySelectorAll('.key-CTRL').forEach(function (el) {
+              el.classList.toggle('active');
             });
             break;
-          case "RESET":
+          case 'RESET':
             this.cpu.reset();
             break;
-          case "CLS":
+          case 'CLS':
             this.text.clear();
             break;
           default:
             break;
         }
       } else {
-        if (this.controlled && key >= "@" && key <= "_") {
+        if (this.controlled && key >= '@' && key <= '_') {
           this.io.keyDown(key.charCodeAt(0) - 0x40);
         } else {
           this.io.keyDown(key.charCodeAt(0));
@@ -292,46 +292,46 @@ export class KeyBoard {
     };
 
     for (y = 0; y < 5; y++) {
-      row = document.createElement("div");
-      row.classList.add("row", "row" + y);
+      row = document.createElement('div');
+      row.classList.add('row', 'row' + y);
       this.kb.append(row);
       for (x = 0; x < keys[0][y].length; x++) {
         key1 = keys[0][y][x];
         key2 = keys[1][y][x];
 
-        label = document.createElement("div");
+        label = document.createElement('div');
         label1 = buildLabel(key1);
         label2 = buildLabel(key2);
 
-        key = document.createElement("div");
-        key.classList.add("key", "key-" + key1.replace(/[&;]/g, ""));
+        key = document.createElement('div');
+        key.classList.add('key', 'key-' + key1.replace(/[&;]/g, ''));
 
         if (key1.length > 1) {
-          if (key1 != key2) {
-            key.classList.add("vcenter2");
+          if (key1 !== key2) {
+            key.classList.add('vcenter2');
           } else {
-            key.classList.add("vcenter");
+            key.classList.add('vcenter');
           }
         }
 
-        if (key1 != key2) {
-          key.classList.add("key-" + key2.replace(/[&;]/g, ""));
+        if (key1 !== key2) {
+          key.classList.add('key-' + key2.replace(/[&;]/g, ''));
           label.append(label2);
-          label.append(document.createElement("br"));
+          label.append(document.createElement('br'));
         }
         label.append(label1);
         key.append(label);
-        key.dataset["key1"] = key1;
-        key.dataset["key2"] = key2;
+        key.dataset['key1'] = key1;
+        key.dataset['key2'] = key2;
 
         if (window.ontouchstart === undefined) {
-          key.addEventListener("mousedown", _mousedown);
-          key.addEventListener("mouseup", _mouseup);
-          key.addEventListener("mouseout", _mouseup);
+          key.addEventListener('mousedown', _mousedown);
+          key.addEventListener('mouseup', _mouseup);
+          key.addEventListener('mouseout', _mouseup);
         } else {
-          key.addEventListener("touchstart", _mousedown);
-          key.addEventListener("touchend", _mouseup);
-          key.addEventListener("touchleave", _mouseup);
+          key.addEventListener('touchstart', _mousedown);
+          key.addEventListener('touchend', _mouseup);
+          key.addEventListener('touchleave', _mouseup);
         }
 
         row.append(key);

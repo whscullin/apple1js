@@ -9,13 +9,13 @@
  * implied warranty.
  */
 
-import { byte, word } from "./types";
+import { byte, word } from './types';
 
-var hex_digits = "0123456789ABCDEF";
-var bin_digits = "01";
+const hex_digits = '0123456789ABCDEF';
+const bin_digits = '01';
 
 export function allocMem(size: word) {
-  var result;
+  let result;
   if (window.Uint8Array) {
     result = new Uint8Array(size);
   } else {
@@ -37,8 +37,8 @@ export function toHex(v: byte, n?: 2 | 4) {
   if (!n) {
     n = v < 256 ? 2 : 4;
   }
-  var result = "";
-  for (var idx = 0; idx < n; idx++) {
+  let result = '';
+  for (let idx = 0; idx < n; idx++) {
     result = hex_digits[v & 0x0f] + result;
     v >>= 4;
   }
@@ -46,8 +46,8 @@ export function toHex(v: byte, n?: 2 | 4) {
 }
 
 export function toBinary(v: byte) {
-  var result = "";
-  for (var idx = 0; idx < 8; idx++) {
+  let result = '';
+  for (let idx = 0; idx < 8; idx++) {
     result = bin_digits[v & 0x01] + result;
     v >>= 1;
   }
@@ -60,8 +60,8 @@ export function gup(name: string) {
 }
 
 export function hup() {
-  var regex = new RegExp("#(.*)");
-  var results = regex.exec(window.location.hash);
-  if (!results) return "";
+  const regex = new RegExp('#(.*)');
+  const results = regex.exec(window.location.hash);
+  if (!results) return '';
   else return decodeURIComponent(results[1]);
 }

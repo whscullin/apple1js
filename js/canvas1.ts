@@ -9,8 +9,8 @@
  * implied warranty.
  */
 
-import { charset } from "./roms/apple1char";
-import type { byte } from "./types";
+import { charset } from './roms/apple1char';
+import type { byte } from './types';
 
 /*
 0: A9 9 AA 20 EF FF E8 8A 4C 2 0
@@ -40,9 +40,9 @@ export class TextPage {
 
   constructor() {
     this._buffer = [];
-    for (var row = 0; row < 24; row++) {
+    for (let row = 0; row < 24; row++) {
       this._buffer[row] = [];
-      for (var col = 0; col < 40; col++) {
+      for (let col = 0; col < 40; col++) {
         this._buffer[row][col] = col % 2 ? 0x00 : 0xff;
       }
     }
@@ -58,12 +58,12 @@ export class TextPage {
   }
 
   write(val: byte): void {
-    var col;
+    let col;
     val &= 0x7f;
 
     if (this.transcript) {
-      if (val == 0xd) {
-        this.transcript += "\n";
+      if (val === 0xd) {
+        this.transcript += '\n';
       } else if (val >= 0x20) {
         if (val >= 0x60) {
           val &= 0x5f;
@@ -72,7 +72,7 @@ export class TextPage {
       }
     }
 
-    if (val == 0x0d) {
+    if (val === 0x0d) {
       for (col = this._col; col < 40; col++) {
         this._buffer[this._row][col] = 0x20;
       }
@@ -99,15 +99,13 @@ export class TextPage {
   }
   writeAt(row: byte, col: byte, val: byte): void {
     this._buffer[row][col] = val;
-    var data = this._page.data,
-      fore,
-      back,
-      color;
-    var off = (col * 14 + row * 560 * 8 * 2) * 4;
+    const data = this._page.data;
+    let color;
+    let off = (col * 14 + row * 560 * 8 * 2) * 4;
 
-    fore = this._greenMode ? this._green : this._white;
-    back = this._black;
-    var char = 0;
+    let fore = this._greenMode ? this._green : this._white;
+    const back = this._black;
+    let char = 0;
 
     if (!val) {
       if (this._blinking) {
@@ -118,12 +116,12 @@ export class TextPage {
       char |= val & 0x40 ? 0 : 0x20;
     }
 
-    for (var jdx = 0; jdx < 8; jdx++) {
-      var b = charset[char * 8 + jdx];
-      for (var idx = 0; idx < 7; idx += 1) {
+    for (let jdx = 0; jdx < 8; jdx++) {
+      let b = charset[char * 8 + jdx];
+      for (let idx = 0; idx < 7; idx += 1) {
         b <<= 1;
         color = b & 0x80 ? fore : back;
-        var c0 = color[0],
+        const c0 = color[0],
           c1 = color[1],
           c2 = color[2];
         data[off + 0] = data[off + 4] = c0;
@@ -144,9 +142,9 @@ export class TextPage {
     }
   }
   _blink() {
-    for (var row = 0; row < 24; row++) {
-      for (var col = 0; col < 40; col++) {
-        var val = this._buffer[row][col];
+    for (let row = 0; row < 24; row++) {
+      for (let col = 0; col < 40; col++) {
+        const val = this._buffer[row][col];
         if (!val) {
           this.writeAt(row, col, val);
         }
@@ -155,8 +153,8 @@ export class TextPage {
     this._dirty = true;
   }
   refresh() {
-    for (var row = 0; row < 24; row++) {
-      for (var col = 0; col < 40; col++) {
+    for (let row = 0; row < 24; row++) {
+      for (let col = 0; col < 40; col++) {
         this.writeAt(row, col, this._buffer[row][col]);
       }
     }
@@ -186,7 +184,7 @@ export class TextPage {
   setContext(context: CanvasRenderingContext2D) {
     this._context = context;
     this._page = context.createImageData(560, 384);
-    for (var idx = 0; idx < 560 * 384 * 4; idx++) {
+    for (let idx = 0; idx < 560 * 384 * 4; idx++) {
       this._page.data[idx] = 0xff;
     }
   }
@@ -202,24 +200,24 @@ export class TextPage {
       return charCode;
     }
 
-    var buffer = "",
+    let buffer = '',
       line,
       charCode;
-    var row, col;
+    let row, col;
     for (row = 0; row < 24; row++) {
-      line = "";
+      line = '';
       for (col = 0; col < 40; col++) {
         charCode = mapCharCode(this._buffer[row][col]);
         line += String.fromCharCode(charCode);
       }
       line = line.trimRight();
-      buffer += line + "\n";
+      buffer += line + '\n';
     }
     return buffer;
   }
   clear() {
-    for (var row = 0; row < 24; row++) {
-      for (var col = 0; col < 40; col++) {
+    for (let row = 0; row < 24; row++) {
+      for (let col = 0; col < 40; col++) {
         this._buffer[row][col] = 0x20;
       }
     }
@@ -228,5 +226,5 @@ export class TextPage {
     this.refresh();
   }
 
-  transcript = "";
+  transcript = '';
 }

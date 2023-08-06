@@ -1,6 +1,6 @@
-import CPU6502 from "../cpu6502";
-import { debug } from "../util";
-import { byte } from "../types";
+import CPU6502 from '../cpu6502';
+import { debug } from '../util';
+import { byte } from '../types';
 
 const rom = [
   0xa9, 0xaa, 0x20, 0xef, 0xff, 0xa9, 0x8d, 0x20, 0xef, 0xff, 0xa0, 0xff, 0xc8,
@@ -50,19 +50,18 @@ export default class ACI {
     return 0xc1;
   }
   read(page: byte, off: byte) {
-    var now = this.cpu.getCycles();
-    var result = rom[off];
-    if (page == 0xc0) {
+    const now = this.cpu.getCycles();
+    let result = rom[off];
+    if (page === 0xc0) {
       if (this._recording) {
-        var delta = now - this._last;
+        const delta = now - this._last;
         this.buffer.push(delta);
         this._last = now;
       } else {
-        var progress;
         if (this._readOffset < this.buffer.length) {
           if (now > this._next) {
-            if (this._readOffset % 1000 == 0) {
-              debug("Read " + this._readOffset / 1000);
+            if (this._readOffset % 1000 === 0) {
+              debug('Read ' + this._readOffset / 1000);
             }
             this._flip = !this._flip;
             this._next = now + this.buffer[this._readOffset++];
@@ -70,9 +69,9 @@ export default class ACI {
         }
         result = this._flip ? rom[off | 0x01] : rom[off & 0xfe];
 
-        progress =
+        const progress =
           Math.round((this._readOffset / this.buffer.length) * 100) / 100;
-        if (this._progress != progress) {
+        if (this._progress !== progress) {
           this._progress = progress;
           this.cb.progress(this._progress);
         }
@@ -83,14 +82,14 @@ export default class ACI {
           case 0x00:
             this._recording = false;
             this._beKind = true;
-            debug("Entering ACI CLI");
+            debug('Entering ACI CLI');
             break;
           case 0x63:
             if (this._recording) {
               this.buffer.push(5000000);
               this._recording = false;
             }
-            debug("Exiting ACI CLI");
+            debug('Exiting ACI CLI');
             break;
           case 0x70: // WRITE
             this._recording = true;
@@ -98,7 +97,7 @@ export default class ACI {
               this._beKind = false;
               this.buffer = [];
             }
-            debug("Start write");
+            debug('Start write');
             this._last = now;
             break;
           //case 0x7c: // WBITLOOP:
@@ -107,7 +106,7 @@ export default class ACI {
           // break;
           case 0x8d: // READ
             this._recording = false;
-            debug("Start read");
+            debug('Start read');
             if (this._beKind) {
               this._readOffset = 0;
               this._next = now + 5000000;
@@ -131,7 +130,7 @@ export default class ACI {
   setState() {}
 
   setData(data: number[][]) {
-    var seg, idx, jdx, d, b;
+    let seg, idx, jdx, d, b;
     this.buffer = [];
     for (seg = 0; seg < data.length; seg++) {
       for (idx = 0; idx < 16384; idx++) {

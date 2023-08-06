@@ -9,9 +9,9 @@
  * implied warranty.
  */
 
-import { base64_decode, base64_encode } from "./base64";
-import { allocMemPages } from "./util";
-import type { byte } from "./types";
+import { base64_decode, base64_encode } from './base64';
+import { allocMemPages } from './util';
+import type { byte } from './types';
 
 export interface RAMState {
   start: byte;
@@ -25,8 +25,8 @@ export default class RAM {
   constructor(private start_page: byte, private end_page: byte) {
     this.mem = allocMemPages(end_page - start_page + 1);
 
-    for (var page = 0; page <= end_page; page++) {
-      for (var off = 0; off < 0x100; off++) {
+    for (let page = 0; page <= end_page; page++) {
+      for (let off = 0; off < 0x100; off++) {
         this.mem[page * 0x100 + off] = 0; // Math.floor(Math.random()*256);
       }
     }

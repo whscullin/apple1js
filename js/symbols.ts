@@ -9,16 +9,16 @@
  * implied warranty.
  */
 
-import type { address } from "./types";
+import type { address } from './types';
 
 export const SYMBOLS: Record<address, string> = {
-  0xd010: "KBD",
-  0xd011: "KBDCR",
-  0xd012: "DSP",
-  0xd013: "DSPCR",
+  0xd010: 'KBD',
+  0xd011: 'KBDCR',
+  0xd012: 'DSP',
+  0xd013: 'DSPCR',
 
-  0xff1f: "GETLINE",
-  0xffef: "ECHO",
-  0xffdc: "PRBYTE",
-  0xffe5: "PRHEX",
+  0xff1f: 'GETLINE',
+  0xffef: 'ECHO',
+  0xffdc: 'PRBYTE',
+  0xffe5: 'PRHEX',
 };

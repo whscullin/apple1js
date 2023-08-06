@@ -8,7 +8,11 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.js]
-indent_size = 4
+indent_size = 2
+
+[*.ts]
+indent_size = 2
+quote_type = single
 
 [*.html]
 indent_size = 2

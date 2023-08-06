@@ -9,9 +9,6 @@ module.exports =
     },
     output: {
         path: path.resolve('dist/'),
-        library: 'Apple1',
-        libraryExport: 'Apple1',
-        libraryTarget: 'var'
     },
     module: {
         rules: [

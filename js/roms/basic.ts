@@ -1,4 +1,4 @@
-import { byte } from "js/types";
+import { byte } from 'js/types';
 
 export default class Basic {
   ram = [
