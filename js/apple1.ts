@@ -143,7 +143,7 @@ export function doLoadLocal(files: FileList) {
               },
               function () {
                 window.alert('Unable to read tape file: ' + file.name);
-              }
+              },
             )
             .catch(console.error);
         };

@@ -22,7 +22,10 @@ export interface RAMState {
 export default class RAM {
   mem: Uint8Array | byte[];
 
-  constructor(private start_page: byte, private end_page: byte) {
+  constructor(
+    private start_page: byte,
+    private end_page: byte,
+  ) {
     this.mem = allocMemPages(end_page - start_page + 1);
 
     for (let page = 0; page <= end_page; page++) {

@@ -38,7 +38,10 @@ export default class ACI {
   _beKind = false;
   _progress = 0;
 
-  constructor(private cpu: CPU6502, private cb: ACICallback) {
+  constructor(
+    private cpu: CPU6502,
+    private cb: ACICallback,
+  ) {
     this._last = cpu.getCycles();
     this._next = this._last;
   }

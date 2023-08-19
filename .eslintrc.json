@@ -1,27 +1,19 @@
 {
     // Global
     "root": true,
+    "plugins": [
+        "prettier"
+    ],
     "parser": "@typescript-eslint/parser",
     "extends": [
         "eslint:recommended",
+        "plugin:prettier/recommended",
         "plugin:jest/recommended"
     ],
     "globals": {
         "tapes": "writable"
     },
     "rules": {
-        "indent": [
-            "error",
-            4,
-            {
-                "SwitchCase": 1
-            }
-        ],
-        "quotes": [
-            "error",
-            "single",
-            { "avoidEscape": true }
-        ],
         "linebreak-style": [
             "error",
             "unix"
@@ -45,6 +37,7 @@
                 ]
             }
         ],
+        "prettier/prettier": "error",
         // Jest configuration
         "jest/expect-expect": [
             "error",

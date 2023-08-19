@@ -175,7 +175,7 @@ export class KeyBoard {
     id: string,
     private cpu: CPU6502,
     private io: Apple1IO,
-    private text: TextPage
+    private text: TextPage,
   ) {
     this.kb = document.querySelector<HTMLDivElement>(id)!;
   }
