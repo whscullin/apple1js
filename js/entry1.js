@@ -1,3 +1,3 @@
-var Apple1 = require('./apple1');
+import * as Apple1 from "./apple1";
 
-module.exports = { Apple1: Apple1 };
+window.Apple1 = Apple1;

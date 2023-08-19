@@ -1,20 +1,53 @@
 {
+    // Global
+    "root": true,
+    "plugins": [
+        "prettier"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "eslint:recommended",
+        "plugin:prettier/recommended",
+        "plugin:jest/recommended"
+    ],
+    "globals": {
+        "tapes": "writable"
+    },
     "rules": {
-        "indent": [
-            2,
-            4
-        ],
-        "quotes": [
-            2,
-            "single"
-        ],
         "linebreak-style": [
-            2,
+            "error",
             "unix"
         ],
-        "semi": [
-            2,
-            "always"
+        "eqeqeq": [
+            "error",
+            "smart"
+        ],
+        "prefer-const": [
+            "error"
+        ],
+        "no-var": "error",
+        "no-use-before-define": "off",
+        "no-console": [
+            "error",
+            {
+                "allow": [
+                    "info",
+                    "warn",
+                    "error"
+                ]
+            }
+        ],
+        "prettier/prettier": "error",
+        // Jest configuration
+        "jest/expect-expect": [
+            "error",
+            {
+                "assertFunctionNames": [
+                    "expect*",
+                    "checkImageData",
+                    "testCode"
+                ]
+            }
         ]
     },
     "env": {
@@ -22,16 +55,109 @@
         "browser": true,
         "es6": true
     },
-    "globals": {
-        "tapes": true
-    },
-    "parserOptions": {
-        "sourceType": "module"
-    },
-    "extends": "eslint:recommended",
     "overrides": [
+        // All overrides matching a file are applied in-order, with the last
+        // taking precedence.
+        //
+        // TypeScript/TSX-specific configuration
         {
-            "files": [ "bin/*", "babel.config.js", "webpack.config.js" ],
+            "files": [
+                "*.ts",
+                "*.tsx"
+            ],
+            "plugins": [
+                "@typescript-eslint/eslint-plugin"
+            ],
+            "extends": [
+                "plugin:@typescript-eslint/recommended",
+                "plugin:@typescript-eslint/recommended-requiring-type-checking"
+            ],
+            "rules": {
+                "indent": [
+                    "error",
+                    2,
+                    {
+                        "SwitchCase": 1
+                    }
+                ],
+                // recommended is just "warn"
+                "@typescript-eslint/no-explicit-any": "error",
+                // enforce semicolons at ends of statements
+                "semi": "off",
+                "@typescript-eslint/semi": [
+                    "error",
+                    "always"
+                ],
+                // enforce semicolons to separate members
+                "@typescript-eslint/member-delimiter-style": [
+                    "error",
+                    {
+                        "multiline": {
+                            "delimiter": "semi",
+                            "requireLast": true
+                        },
+                        "singleline": {
+                            "delimiter": "semi",
+                            "requireLast": false
+                        }
+                    }
+                ],
+                // definitions must come before uses for variables
+                "@typescript-eslint/no-use-before-define": [
+                    "error",
+                    {
+                        "functions": false,
+                        "classes": false
+                    }
+                ],
+                // no used variables
+                "no-unused-vars": "off",
+                "@typescript-eslint/no-unused-vars": [
+                    "error",
+                    {
+                        "argsIgnorePattern": "^_"
+                    }
+                ],
+                // no redeclaration of classes, members or variables
+                "no-redeclare": "off",
+                "@typescript-eslint/no-redeclare": [
+                    "error"
+                ],
+                // allow empty interface definitions and empty extends
+                "@typescript-eslint/no-empty-interface": "off",
+                // allow explicit type declaration
+                "@typescript-eslint/no-inferrable-types": "off",
+                // allow some non-string types in templates
+                "@typescript-eslint/restrict-template-expressions": [
+                    "error",
+                    {
+                        "allowNumber": true,
+                        "allowBoolean": true
+                    }
+                ]
+            },
+            "parserOptions": {
+                "sourceType": "module",
+                "project": "./tsconfig.json"
+            }
+        },
+        // UI elements
+        {
+            "files": [
+                "js/ui/**.ts"
+            ],
+            "rules": {
+                // allow non-null assertions since these classes reference the DOM
+                "@typescript-eslint/no-non-null-assertion": "off"
+            }
+        },
+        // JS Node configuration
+        {
+            "files": [
+                "bin/*",
+                "babel.config.js",
+                "webpack.config.js"
+            ],
             "rules": {
                 "no-console": 0
             },
@@ -40,17 +166,49 @@
                 "jquery": false,
                 "browser": false
             }
-        }, {
-            "files": [ "test/*"],
+        },
+        // Test configuration
+        {
+            "files": [
+                "test/**/*"
+            ],
             "env": {
-                "node": true,
-                "jest": true
+                "jest": true,
+                "jasmine": true,
+                "node": true
+            },
+            "rules": {
+                "no-console": 0
             }
-        }, {
-            "files": [ "js/entry1.js"],
+        },
+        // Entry point configuration
+        {
+            "files": [
+                "js/entry2.ts",
+                "js/entry2e.ts",
+                "jest.config.js"
+            ],
             "env": {
                 "commonjs": true
             }
+        },
+        // Worker configuration
+        {
+            "files": [
+                "workers/*"
+            ],
+            "parserOptions": {
+                "project": "workers/tsconfig.json"
+            }
         }
-    ]
+    ],
+    "ignorePatterns": [
+        "coverage/**/*"
+    ],
+    "settings": {
+        "react": {
+            "pragma": "h",
+            "version": "16"
+        }
+    }
 }
