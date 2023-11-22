@@ -10,7 +10,7 @@
  */
 
 import { charset } from './roms/apple1char';
-import type { byte } from './types';
+import type { byte } from '@whscullin/cpu6502';
 
 /*
 0: A9 9 AA 20 EF FF E8 8A 4C 2 0

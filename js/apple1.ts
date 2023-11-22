@@ -12,7 +12,7 @@
 import MicroModal from 'micromodal';
 
 import Apple1IO from './apple1io';
-import CPU6502 from './cpu6502';
+import { CPU6502, word, byte } from '@whscullin/cpu6502';
 import Prefs from './prefs';
 import RAM from './ram';
 import { TextPage } from './canvas1';
@@ -25,7 +25,6 @@ import Krusader from './roms/krusader';
 import ACI from './cards/aci';
 
 import { mapKeyEvent, KeyBoard } from './ui/keyboard';
-import { address, byte } from './types';
 
 // eslint-disable-next-line prefer-const
 let DEBUG = false;
@@ -197,7 +196,7 @@ export function setTurboTape(val: boolean) {
   turbotape = val;
 }
 
-function run(pc?: address) {
+function run(pc?: word) {
   if (runTimer) {
     clearInterval(runTimer);
   }
@@ -364,7 +363,7 @@ export function doLoadText() {
     lines.forEach(function (line) {
       const parts = line.split(': ');
       if (parts.length === 2) {
-        let addr: address = 0;
+        let addr: word = 0;
         if (parts[0].length > 0) {
           addr = parseInt(parts[0], 16);
         }

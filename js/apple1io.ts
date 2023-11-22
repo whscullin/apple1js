@@ -10,7 +10,7 @@
  */
 
 import { TextPage } from './canvas1';
-import type { byte } from './types';
+import type { byte } from '@whscullin/cpu6502';
 
 const LOC = {
   KBD: 0x10,

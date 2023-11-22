@@ -9,6 +9,8 @@ Things are still a little rough around the edges right now, hopefully I will hav
 First
 
 ```sh
+git submodule init
+git submodule update
 npm install
 ```
 

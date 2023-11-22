@@ -47,6 +47,7 @@
     "webpack-dev-server": "^4.6.0"
   },
   "dependencies": {
+    "@whscullin/cpu6502": "file:submodules/cpu6502",
     "micromodal": "^0.4.9"
   }
 }

@@ -9,9 +9,9 @@
  * implied warranty.
  */
 
-import type { address } from './types';
+import type { word } from '@whscullin/cpu6502';
 
-export const SYMBOLS: Record<address, string> = {
+export const SYMBOLS: Record<word, string> = {
   0xd010: 'KBD',
   0xd011: 'KBDCR',
   0xd012: 'DSP',
