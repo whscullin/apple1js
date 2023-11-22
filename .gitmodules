@@ -1,0 +1,3 @@
+[submodule "submodules/cpu6502"]
+	path = submodules/cpu6502
+	url = https://github.com/whscullin/cpu6502

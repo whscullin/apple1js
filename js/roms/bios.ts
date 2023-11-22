@@ -1,4 +1,4 @@
-import { byte } from 'js/types';
+import { byte } from '@whscullin/cpu6502';
 
 export default class Bios {
   rom = [

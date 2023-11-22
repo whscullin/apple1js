@@ -9,12 +9,12 @@
  * implied warranty.
  */
 
-import { byte, word } from './types';
+import { byte, word } from '@whscullin/cpu6502';
 
 const hex_digits = '0123456789ABCDEF';
 const bin_digits = '01';
 
-export function allocMem(size: word) {
+export function allocMem(size: word): Uint8Array | byte[] {
   let result;
   if (window.Uint8Array) {
     result = new Uint8Array(size);

@@ -11,7 +11,7 @@
 
 import { base64_decode, base64_encode } from './base64';
 import { allocMemPages } from './util';
-import type { byte } from './types';
+import type { byte, memory } from '@whscullin/cpu6502';
 
 export interface RAMState {
   start: byte;
@@ -20,7 +20,7 @@ export interface RAMState {
 }
 
 export default class RAM {
-  mem: Uint8Array | byte[];
+  mem: memory;
 
   constructor(
     private start_page: byte,
