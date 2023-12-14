@@ -2,7 +2,7 @@
 
 ## What is this?
 
-An Apple 1 emulator written in Javascript and HTML5
+An Apple 1 emulator written in JavaScript and HTML5. Press F1 (or maybe Shift+F1) to Reset, F2 to enter fullscreen mode.
 
 Things are still a little rough around the edges right now, hopefully I will have more time to clean things up.
 

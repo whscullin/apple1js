@@ -272,9 +272,10 @@ declare global {
 
 let _key: byte;
 function _keydown(evt: KeyboardEvent) {
-  if (evt.keyCode === 112) {
+  const F1 = 112, F2 = 113;
+  if (evt.keyCode === F1) {
     cpu.reset();
-  } else if (evt.keyCode === 113) {
+  } else if (evt.keyCode === F2) {
     if (document.webkitIsFullScreen) {
       document.webkitCancelFullScreen();
     } else {
