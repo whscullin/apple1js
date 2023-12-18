@@ -9,10 +9,10 @@
  * implied warranty.
  */
 
-import { CPU6502, byte } from '@whscullin/cpu6502';
-import { debug, toHex } from '../util';
+import {CPU6502, byte} from '@whscullin/cpu6502';
+import {debug, toHex} from '../util';
 import Apple1IO from 'js/apple1io';
-import { TextPage } from 'js/canvas1';
+import {TextPage} from 'js/canvas1';
 
 // keycode: [plain, cntl, shift]
 

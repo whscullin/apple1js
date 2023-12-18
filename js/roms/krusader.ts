@@ -1,4 +1,4 @@
-import { byte } from '@whscullin/cpu6502';
+import {byte} from '@whscullin/cpu6502';
 
 export default class Krusader {
   rom = [

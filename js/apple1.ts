@@ -12,11 +12,11 @@
 import MicroModal from 'micromodal';
 
 import Apple1IO from './apple1io';
-import { CPU6502, word, byte } from '@whscullin/cpu6502';
+import {CPU6502, word, byte} from '@whscullin/cpu6502';
 import Prefs from './prefs';
 import RAM from './ram';
-import { TextPage } from './canvas1';
-import { debug, hup } from './util';
+import {TextPage} from './canvas1';
+import {debug, hup} from './util';
 
 import Basic from './roms/basic';
 import Bios from './roms/bios';
@@ -24,7 +24,7 @@ import Krusader from './roms/krusader';
 
 import ACI from './cards/aci';
 
-import { mapKeyEvent, KeyBoard } from './ui/keyboard';
+import {mapKeyEvent, KeyBoard} from './ui/keyboard';
 
 // eslint-disable-next-line prefer-const
 let DEBUG = false;
@@ -272,7 +272,8 @@ declare global {
 
 let _key: byte;
 function _keydown(evt: KeyboardEvent) {
-  const F1 = 112, F2 = 113;
+  const F1 = 112,
+    F2 = 113;
   if (evt.keyCode === F1) {
     cpu.reset();
   } else if (evt.keyCode === F2) {

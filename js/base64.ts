@@ -1,4 +1,4 @@
-import { memory } from '@whscullin/cpu6502';
+import {memory} from '@whscullin/cpu6502';
 
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
