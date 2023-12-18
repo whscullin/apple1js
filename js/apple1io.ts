@@ -87,7 +87,6 @@ export default class Apple1IO {
     }
   }
   reset() {
-    this.text.clear();
     this._buffer = [];
     this._keyReady = false;
     this._displayReady = false;
