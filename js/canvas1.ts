@@ -78,7 +78,7 @@ export class TextPage {
       }
       this._col = 0;
       this._row++;
-    } else {
+    } else if (val >= 0x20) {
       this._buffer[this._row][this._col] = val;
       this._col++;
       if (this._col > 39) {
