@@ -1,5 +1,5 @@
-import { CPU6502, byte } from '@whscullin/cpu6502';
-import { debug } from '../util';
+import {CPU6502, byte} from '@whscullin/cpu6502';
+import {debug} from '../util';
 
 // prettier-ignore
 const rom = [

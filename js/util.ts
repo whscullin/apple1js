@@ -9,7 +9,7 @@
  * implied warranty.
  */
 
-import { byte, word } from '@whscullin/cpu6502';
+import {byte, word} from '@whscullin/cpu6502';
 
 const hex_digits = '0123456789ABCDEF';
 const bin_digits = '01';

@@ -9,9 +9,9 @@
  * implied warranty.
  */
 
-import { base64_decode, base64_encode } from './base64';
-import { allocMemPages } from './util';
-import type { byte, memory } from '@whscullin/cpu6502';
+import {base64_decode, base64_encode} from './base64';
+import {allocMemPages} from './util';
+import type {byte, memory} from '@whscullin/cpu6502';
 
 export interface RAMState {
   start: byte;

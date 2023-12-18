@@ -9,7 +9,7 @@
  * implied warranty.
  */
 
-import type { word } from '@whscullin/cpu6502';
+import type {word} from '@whscullin/cpu6502';
 
 export const SYMBOLS: Record<word, string> = {
   0xd010: 'KBD',
