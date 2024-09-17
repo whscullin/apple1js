@@ -1,11 +1,10 @@
 const path = require('path');
 
-module.exports =
-{
+module.exports = {
     mode: 'development',
     devtool: 'source-map',
     entry: {
-        apple1: path.resolve('js/entry1.js')
+        apple1: path.resolve('js/entry1.js'),
     },
     output: {
         path: path.resolve('dist/'),
@@ -16,24 +15,24 @@ module.exports =
                 test: /\.ts$/i,
                 use: [
                     {
-                        loader: 'ts-loader'
+                        loader: 'ts-loader',
                     },
                 ],
                 exclude: /node_modules/,
-            }
-        ]
+            },
+        ],
     },
     resolve: {
-        extensions: ['.ts',  '.js'],
+        extensions: ['.ts', '.js'],
         alias: {
-            js: path.resolve(__dirname, 'js/')
-        }
+            js: path.resolve(__dirname, 'js/'),
+        },
     },
     devServer: {
         compress: true,
         static: {
             watch: {
-                ignored: /(node_modules|test|\.git)/
+                ignored: /(node_modules|test|\.git)/,
             },
             directory: __dirname,
         },
