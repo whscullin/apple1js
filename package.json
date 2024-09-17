@@ -32,6 +32,7 @@
     "@types/micromodal": "^0.3.3",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@types/jest": "^29.5.3",
+    "@types/node": "^18.19.39",
     "ajv": "^6.9.2",
     "babel-jest": "^29.5.0",
     "eslint": "^8.3.0",
@@ -44,8 +45,8 @@
     "ts-loader": "^9.4.4",
     "typescript": "^5.1.6",
     "webpack": "^5.64.4",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.6.0"
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
   },
   "dependencies": {
     "@whscullin/cpu6502": "file:submodules/cpu6502",
