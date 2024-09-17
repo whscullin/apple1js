@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "An Apple 1 Emulator in Javascript",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">= 18"
+  },
   "scripts": {
     "build": "webpack --mode=production",
     "dev": "webpack-dev-server",
